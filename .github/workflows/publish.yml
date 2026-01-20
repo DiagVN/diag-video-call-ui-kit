@@ -70,21 +70,21 @@ jobs:
           cd packages/core
           pnpm publish --no-git-checks --access public
         env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
       - name: Publish @diag/video-call-ui-kit
         run: |
           cd packages/ui-kit
           pnpm publish --no-git-checks --access public
         env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
       - name: Publish @diag/agora-web-adapter
         run: |
           cd packages/adapters/agora-web
           pnpm publish --no-git-checks --access public
         env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
   create-release:
     needs: build
