@@ -179,6 +179,10 @@ export const useVideoCallStore = defineStore('videoCall', () => {
   // Actions
   function setAdapter(newAdapter: Actions) {
     adapter.value = newAdapter
+    const maybeBus = (newAdapter as any)?.eventBus
+    if (maybeBus && typeof maybeBus.emit === 'function' && typeof maybeBus.on === 'function') {
+      eventBus.value = maybeBus
+    }
     setupEventListeners()
   }
 
@@ -306,8 +310,8 @@ export const useVideoCallStore = defineStore('videoCall', () => {
     isReconnecting,
     isMuted,
     isVideoOff,
-    // Event Bus (for advanced usage)
-    eventBus: readonly(eventBus),
+    // Event Bus (readable and accessible for test adapters)
+    eventBus,
     // Actions
     setAdapter,
     init,

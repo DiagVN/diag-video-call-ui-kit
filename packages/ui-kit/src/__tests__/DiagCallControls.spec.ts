@@ -81,8 +81,8 @@ describe('DiagCallControls', () => {
       }
     })
 
-    // Find screen share button (3rd button in center group)
-    const screenShareButton = wrapper.findAll('.vc-call-controls__group--center button')[1]
+    // Find screen share button (first button in center group)
+    const screenShareButton = wrapper.find('.vc-call-controls__group--center button')
     await screenShareButton.trigger('click')
 
     expect(wrapper.emitted('start-screen-share')).toBeTruthy()

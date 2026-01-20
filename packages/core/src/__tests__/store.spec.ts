@@ -1,30 +1,26 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useVideoCallStore } from '../src/store'
-import { createEventBus } from '../src/eventBus'
-import type { Actions, JoinOptions } from '../src/actions'
+import { useVideoCallStore } from '../store'
+import { createEventBus } from '../eventBus'
+import type { Actions, JoinOptions } from '../actions'
 
 // Mock adapter for testing
 class MockAdapter implements Actions {
-  private eventBus: any
-  private callState: any = 'idle'
+  eventBus: any
 
-  constructor(eventBus: any) {
-    this.eventBus = eventBus
+  constructor(eventBus?: any) {
+    this.eventBus = eventBus || createEventBus()
   }
 
   async init(): Promise<void> {
-    this.callState = 'prejoin'
     this.eventBus.emit('call-state-changed', { from: 'idle', to: 'prejoin' })
   }
 
   async join(options: JoinOptions): Promise<void> {
-    this.callState = 'connecting'
     this.eventBus.emit('call-state-changed', { from: 'prejoin', to: 'connecting' })
     
     // Simulate successful join
     setTimeout(() => {
-      this.callState = 'in_call'
       this.eventBus.emit('call-state-changed', { from: 'connecting', to: 'in_call' })
       
       // Add local participant
@@ -43,7 +39,6 @@ class MockAdapter implements Actions {
   }
 
   async leave(): Promise<void> {
-    this.callState = 'ended'
     this.eventBus.emit('call-state-changed', { from: 'in_call', to: 'ended' })
   }
 
@@ -65,7 +60,7 @@ class MockAdapter implements Actions {
     }
   }
   getParticipants(): any[] { return [] }
-  getCallState(): any { return this.callState }
+  getCallState(): any { return 'idle' }
   async getStats(): Promise<any> { return { duration: 0 } }
   async destroy(): Promise<void> {}
 }
@@ -83,8 +78,7 @@ describe('Video Call Store', () => {
 
   it('transitions to prejoin after init', async () => {
     const store = useVideoCallStore()
-    const eventBus = createEventBus()
-    const adapter = new MockAdapter(eventBus)
+    const adapter = new MockAdapter(store.eventBus.value)
     
     store.setAdapter(adapter)
     await store.init()
@@ -94,8 +88,7 @@ describe('Video Call Store', () => {
 
   it('transitions to in_call after join', async () => {
     const store = useVideoCallStore()
-    const eventBus = createEventBus()
-    const adapter = new MockAdapter(eventBus)
+    const adapter = new MockAdapter(store.eventBus.value)
     
     store.setAdapter(adapter)
     await store.init()
@@ -116,8 +109,7 @@ describe('Video Call Store', () => {
 
   it('adds participant when user joins', async () => {
     const store = useVideoCallStore()
-    const eventBus = createEventBus()
-    const adapter = new MockAdapter(eventBus)
+    const adapter = new MockAdapter(store.eventBus)
     
     store.setAdapter(adapter)
     await store.init()
@@ -126,7 +118,7 @@ describe('Video Call Store', () => {
     await new Promise(resolve => setTimeout(resolve, 150))
     
     // Simulate remote participant joining
-    eventBus.emit('participant-joined', {
+    store.eventBus.emit('participant-joined', {
       id: '456',
       displayName: 'Remote User',
       role: 'audience',
@@ -143,8 +135,7 @@ describe('Video Call Store', () => {
 
   it('removes participant when user leaves', async () => {
     const store = useVideoCallStore()
-    const eventBus = createEventBus()
-    const adapter = new MockAdapter(eventBus)
+    const adapter = new MockAdapter(store.eventBus)
     
     store.setAdapter(adapter)
     await store.init()
@@ -152,7 +143,7 @@ describe('Video Call Store', () => {
     
     await new Promise(resolve => setTimeout(resolve, 150))
     
-    eventBus.emit('participant-joined', {
+    store.eventBus.emit('participant-joined', {
       id: '456',
       displayName: 'Remote User',
       role: 'audience',
@@ -165,26 +156,25 @@ describe('Video Call Store', () => {
     
     expect(store.participants.length).toBe(2)
     
-    eventBus.emit('participant-left', { id: '456' })
+    store.eventBus.emit('participant-left', { id: '456' })
     
     expect(store.participants.length).toBe(1)
   })
 
   it('handles token expiry events', async () => {
     const store = useVideoCallStore()
-    const eventBus = createEventBus()
-    const adapter = new MockAdapter(eventBus)
+    const adapter = new MockAdapter(store.eventBus)
     
     let willExpireTriggered = false
     let expiredTriggered = false
     
-    eventBus.on('token-will-expire', () => { willExpireTriggered = true })
-    eventBus.on('token-expired', () => { expiredTriggered = true })
+    store.eventBus.on('token-will-expire', () => { willExpireTriggered = true })
+    store.eventBus.on('token-expired', () => { expiredTriggered = true })
     
     store.setAdapter(adapter)
     
-    eventBus.emit('token-will-expire', { expiresIn: 30 })
-    eventBus.emit('token-expired')
+    store.eventBus.emit('token-will-expire', { expiresIn: 30 })
+    store.eventBus.emit('token-expired')
     
     expect(willExpireTriggered).toBe(true)
     expect(expiredTriggered).toBe(true)
