@@ -1,0 +1,151 @@
+/**
+ * DIAG Video Call UI Kit - Design Tokens
+ * 
+ * CSS Variables for theming and brand consistency
+ * Override these variables to customize the UI
+ */
+
+:root {
+  /* DIAG Blue Color Palette */
+  --vc-blue-700: #014473;
+  --vc-blue-600: #024473;
+  --vc-blue-500: #2b85c5;
+  --vc-blue-400: #4a9dd4;
+  --vc-blue-300: #7bb6e0;
+  --vc-blue-200: #a8d0ed;
+  --vc-blue-100: #d4e9f7;
+  --vc-blue-50: #eaf5fc;
+
+  /* Semantic Colors (Light Theme) */
+  --vc-bg: #f6fafd;
+  --vc-surface: #ffffff;
+  --vc-fg: #0b1b2b;
+  --vc-fg-muted: #5b6b7a;
+  --vc-fg-subtle: #8a99a8;
+  --vc-border: #e3ecf4;
+  --vc-border-strong: #c8d8e5;
+
+  /* Primary (DIAG Blue) */
+  --vc-primary: var(--vc-blue-500);
+  --vc-primary-strong: var(--vc-blue-600);
+  --vc-primary-deep: var(--vc-blue-700);
+  --vc-primary-light: var(--vc-blue-100);
+  --vc-primary-fg: #ffffff;
+
+  /* Status Colors */
+  --vc-danger: #d63b3b;
+  --vc-danger-light: #ffe5e5;
+  --vc-danger-fg: #ffffff;
+  
+  --vc-success: #1f9d55;
+  --vc-success-light: #e6f7ed;
+  --vc-success-fg: #ffffff;
+  
+  --vc-warn: #f2a900;
+  --vc-warn-light: #fff8e1;
+  --vc-warn-fg: #2d2d2d;
+
+  --vc-info: var(--vc-blue-500);
+  --vc-info-light: var(--vc-blue-50);
+  --vc-info-fg: var(--vc-blue-700);
+
+  /* Gradients */
+  --vc-gradient: linear-gradient(135deg, #2b85c5 0%, #024473 100%);
+  --vc-gradient-subtle: linear-gradient(135deg, #7bb6e0 0%, #4a9dd4 100%);
+
+  /* Border Radius */
+  --vc-radius: 14px;
+  --vc-radius-lg: 18px;
+  --vc-radius-md: 12px;
+  --vc-radius-sm: 10px;
+  --vc-radius-xs: 6px;
+  --vc-radius-full: 9999px;
+
+  /* Shadows */
+  --vc-shadow: 0 8px 30px rgba(1, 68, 115, 0.12);
+  --vc-shadow-md: 0 4px 16px rgba(1, 68, 115, 0.1);
+  --vc-shadow-sm: 0 2px 8px rgba(1, 68, 115, 0.08);
+  --vc-shadow-inner: inset 0 2px 4px rgba(1, 68, 115, 0.06);
+
+  /* Spacing Scale */
+  --vc-space-xs: 4px;
+  --vc-space-sm: 8px;
+  --vc-space-md: 12px;
+  --vc-space-lg: 16px;
+  --vc-space-xl: 24px;
+  --vc-space-2xl: 32px;
+  --vc-space-3xl: 48px;
+
+  /* Typography */
+  --vc-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --vc-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New',
+    monospace;
+
+  --vc-text-xs: 12px;
+  --vc-text-sm: 13px;
+  --vc-text-base: 14px;
+  --vc-text-lg: 16px;
+  --vc-text-xl: 18px;
+  --vc-text-2xl: 24px;
+  --vc-text-3xl: 32px;
+
+  --vc-font-normal: 400;
+  --vc-font-medium: 500;
+  --vc-font-semibold: 600;
+  --vc-font-bold: 700;
+
+  --vc-line-tight: 1.25;
+  --vc-line-normal: 1.5;
+  --vc-line-relaxed: 1.75;
+
+  /* Transitions */
+  --vc-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --vc-transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --vc-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-Index Scale */
+  --vc-z-base: 0;
+  --vc-z-dropdown: 1000;
+  --vc-z-sticky: 1100;
+  --vc-z-overlay: 1200;
+  --vc-z-modal: 1300;
+  --vc-z-toast: 1400;
+
+  /* Component-Specific */
+  --vc-video-tile-bg: #1a1a1a;
+  --vc-control-bar-bg: rgba(255, 255, 255, 0.95);
+  --vc-control-bar-backdrop: blur(10px);
+  --vc-speaking-ring: var(--vc-primary);
+}
+
+/* Dark Theme */
+.vc-theme-dark {
+  --vc-bg: #0b1b2b;
+  --vc-surface: #1a2c3e;
+  --vc-fg: #e8f0f7;
+  --vc-fg-muted: #a8b8c8;
+  --vc-fg-subtle: #7a8a9a;
+  --vc-border: #2d3e50;
+  --vc-border-strong: #3d5268;
+
+  --vc-primary-light: rgba(43, 133, 197, 0.15);
+  --vc-danger-light: rgba(214, 59, 59, 0.15);
+  --vc-success-light: rgba(31, 157, 85, 0.15);
+  --vc-warn-light: rgba(242, 169, 0, 0.15);
+  --vc-info-light: rgba(43, 133, 197, 0.15);
+
+  --vc-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  --vc-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --vc-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --vc-shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  --vc-video-tile-bg: #0d1318;
+  --vc-control-bar-bg: rgba(26, 44, 62, 0.95);
+}
+
+/* Focus Ring (Accessibility) */
+:root {
+  --vc-focus-ring: 0 0 0 3px rgba(43, 133, 197, 0.3);
+  --vc-focus-ring-danger: 0 0 0 3px rgba(214, 59, 59, 0.3);
+}

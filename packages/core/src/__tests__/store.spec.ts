@@ -1,0 +1,192 @@
+import { describe, it, expect, beforeEach } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
+import { useVideoCallStore } from '../src/store'
+import { createEventBus } from '../src/eventBus'
+import type { Actions, JoinOptions } from '../src/actions'
+
+// Mock adapter for testing
+class MockAdapter implements Actions {
+  private eventBus: any
+  private callState: any = 'idle'
+
+  constructor(eventBus: any) {
+    this.eventBus = eventBus
+  }
+
+  async init(): Promise<void> {
+    this.callState = 'prejoin'
+    this.eventBus.emit('call-state-changed', { from: 'idle', to: 'prejoin' })
+  }
+
+  async join(options: JoinOptions): Promise<void> {
+    this.callState = 'connecting'
+    this.eventBus.emit('call-state-changed', { from: 'prejoin', to: 'connecting' })
+    
+    // Simulate successful join
+    setTimeout(() => {
+      this.callState = 'in_call'
+      this.eventBus.emit('call-state-changed', { from: 'connecting', to: 'in_call' })
+      
+      // Add local participant
+      this.eventBus.emit('participant-joined', {
+        id: String(options.uid),
+        displayName: options.displayName || 'Test User',
+        role: 'host',
+        isLocal: true,
+        audioEnabled: !options.joinMuted,
+        videoEnabled: !options.joinVideoOff,
+        isSpeaking: false,
+        networkQuality: 4,
+        joinedAt: Date.now()
+      })
+    }, 100)
+  }
+
+  async leave(): Promise<void> {
+    this.callState = 'ended'
+    this.eventBus.emit('call-state-changed', { from: 'in_call', to: 'ended' })
+  }
+
+  async toggleMic(): Promise<boolean> { return true }
+  async toggleCam(): Promise<boolean> { return true }
+  async switchCamera(): Promise<void> {}
+  async setInputDevice(): Promise<void> {}
+  async setOutputDevice(): Promise<void> {}
+  async startScreenShare(): Promise<void> {}
+  async stopScreenShare(): Promise<void> {}
+  async refreshToken(): Promise<void> {}
+  async setQuality(): Promise<void> {}
+  async setAudioOnly(): Promise<void> {}
+  async getDevices(): Promise<any> {
+    return {
+      microphones: [],
+      cameras: [],
+      speakers: []
+    }
+  }
+  getParticipants(): any[] { return [] }
+  getCallState(): any { return this.callState }
+  async getStats(): Promise<any> { return { duration: 0 } }
+  async destroy(): Promise<void> {}
+}
+
+describe('Video Call Store', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('initializes with idle state', () => {
+    const store = useVideoCallStore()
+    expect(store.callState).toBe('idle')
+    expect(store.participants.length).toBe(0)
+  })
+
+  it('transitions to prejoin after init', async () => {
+    const store = useVideoCallStore()
+    const eventBus = createEventBus()
+    const adapter = new MockAdapter(eventBus)
+    
+    store.setAdapter(adapter)
+    await store.init()
+    
+    expect(store.callState).toBe('prejoin')
+  })
+
+  it('transitions to in_call after join', async () => {
+    const store = useVideoCallStore()
+    const eventBus = createEventBus()
+    const adapter = new MockAdapter(eventBus)
+    
+    store.setAdapter(adapter)
+    await store.init()
+    
+    const joinPromise = store.join({
+      channel: 'test-channel',
+      uid: 12345,
+      displayName: 'Test User'
+    })
+
+    // Wait for async state changes
+    await new Promise(resolve => setTimeout(resolve, 150))
+    
+    expect(store.callState).toBe('in_call')
+    expect(store.participants.length).toBe(1)
+    expect(store.localParticipant?.displayName).toBe('Test User')
+  })
+
+  it('adds participant when user joins', async () => {
+    const store = useVideoCallStore()
+    const eventBus = createEventBus()
+    const adapter = new MockAdapter(eventBus)
+    
+    store.setAdapter(adapter)
+    await store.init()
+    await store.join({ channel: 'test', uid: 123 })
+    
+    await new Promise(resolve => setTimeout(resolve, 150))
+    
+    // Simulate remote participant joining
+    eventBus.emit('participant-joined', {
+      id: '456',
+      displayName: 'Remote User',
+      role: 'audience',
+      isLocal: false,
+      audioEnabled: true,
+      videoEnabled: true,
+      isSpeaking: false,
+      networkQuality: 3
+    })
+    
+    expect(store.participants.length).toBe(2)
+    expect(store.remoteParticipants.length).toBe(1)
+  })
+
+  it('removes participant when user leaves', async () => {
+    const store = useVideoCallStore()
+    const eventBus = createEventBus()
+    const adapter = new MockAdapter(eventBus)
+    
+    store.setAdapter(adapter)
+    await store.init()
+    await store.join({ channel: 'test', uid: 123 })
+    
+    await new Promise(resolve => setTimeout(resolve, 150))
+    
+    eventBus.emit('participant-joined', {
+      id: '456',
+      displayName: 'Remote User',
+      role: 'audience',
+      isLocal: false,
+      audioEnabled: true,
+      videoEnabled: true,
+      isSpeaking: false,
+      networkQuality: 3
+    })
+    
+    expect(store.participants.length).toBe(2)
+    
+    eventBus.emit('participant-left', { id: '456' })
+    
+    expect(store.participants.length).toBe(1)
+  })
+
+  it('handles token expiry events', async () => {
+    const store = useVideoCallStore()
+    const eventBus = createEventBus()
+    const adapter = new MockAdapter(eventBus)
+    
+    let willExpireTriggered = false
+    let expiredTriggered = false
+    
+    eventBus.on('token-will-expire', () => { willExpireTriggered = true })
+    eventBus.on('token-expired', () => { expiredTriggered = true })
+    
+    store.setAdapter(adapter)
+    
+    eventBus.emit('token-will-expire', { expiresIn: 30 })
+    eventBus.emit('token-expired')
+    
+    expect(willExpireTriggered).toBe(true)
+    expect(expiredTriggered).toBe(true)
+  })
+})

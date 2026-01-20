@@ -1,0 +1,293 @@
+/**
+ * Base Styles and Resets for DIAG Video Call UI Kit
+ */
+
+/* Import tokens first */
+@import './tokens.css';
+
+/* Base box-sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* DIAG Video Call Root Container */
+.vc-root {
+  font-family: var(--vc-font-sans);
+  font-size: var(--vc-text-base);
+  line-height: var(--vc-line-normal);
+  color: var(--vc-fg);
+  background-color: var(--vc-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+.vc-heading {
+  font-weight: var(--vc-font-bold);
+  line-height: var(--vc-line-tight);
+  color: var(--vc-fg);
+  margin: 0;
+}
+
+.vc-heading-lg {
+  font-size: var(--vc-text-2xl);
+}
+
+.vc-heading-md {
+  font-size: var(--vc-text-xl);
+}
+
+.vc-heading-sm {
+  font-size: var(--vc-text-lg);
+  font-weight: var(--vc-font-semibold);
+}
+
+.vc-text {
+  margin: 0;
+  color: var(--vc-fg);
+}
+
+.vc-text-muted {
+  color: var(--vc-fg-muted);
+}
+
+.vc-text-subtle {
+  color: var(--vc-fg-subtle);
+}
+
+.vc-text-sm {
+  font-size: var(--vc-text-sm);
+}
+
+.vc-text-xs {
+  font-size: var(--vc-text-xs);
+}
+
+/* Buttons */
+.vc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vc-space-sm);
+  padding: var(--vc-space-md) var(--vc-space-lg);
+  border: none;
+  border-radius: var(--vc-radius-sm);
+  font-family: var(--vc-font-sans);
+  font-size: var(--vc-text-base);
+  font-weight: var(--vc-font-medium);
+  line-height: 1;
+  cursor: pointer;
+  transition: all var(--vc-transition-base);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.vc-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--vc-focus-ring);
+}
+
+.vc-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary Button */
+.vc-btn-primary {
+  background: var(--vc-gradient);
+  color: var(--vc-primary-fg);
+  box-shadow: var(--vc-shadow-sm);
+}
+
+.vc-btn-primary:hover:not(:disabled) {
+  box-shadow: var(--vc-shadow-md);
+  transform: translateY(-1px);
+}
+
+.vc-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Secondary Button */
+.vc-btn-secondary {
+  background: var(--vc-surface);
+  color: var(--vc-fg);
+  border: 1px solid var(--vc-border);
+}
+
+.vc-btn-secondary:hover:not(:disabled) {
+  background: var(--vc-bg);
+  border-color: var(--vc-border-strong);
+}
+
+/* Danger Button */
+.vc-btn-danger {
+  background: var(--vc-danger);
+  color: var(--vc-danger-fg);
+}
+
+.vc-btn-danger:hover:not(:disabled) {
+  background: #c12f2f;
+}
+
+.vc-btn-danger:focus-visible {
+  box-shadow: var(--vc-focus-ring-danger);
+}
+
+/* Ghost Button */
+.vc-btn-ghost {
+  background: transparent;
+  color: var(--vc-fg-muted);
+}
+
+.vc-btn-ghost:hover:not(:disabled) {
+  background: var(--vc-border);
+  color: var(--vc-fg);
+}
+
+/* Icon Button */
+.vc-btn-icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--vc-radius-full);
+}
+
+.vc-btn-icon-sm {
+  width: 36px;
+  height: 36px;
+}
+
+.vc-btn-icon-lg {
+  width: 56px;
+  height: 56px;
+}
+
+/* Cards & Surfaces */
+.vc-card {
+  background: var(--vc-surface);
+  border: 1px solid var(--vc-border);
+  border-radius: var(--vc-radius);
+  box-shadow: var(--vc-shadow-sm);
+  padding: var(--vc-space-xl);
+}
+
+.vc-panel {
+  background: var(--vc-surface);
+  border-radius: var(--vc-radius);
+  overflow: hidden;
+}
+
+/* Badges */
+.vc-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--vc-space-xs) var(--vc-space-sm);
+  border-radius: var(--vc-radius-xs);
+  font-size: var(--vc-text-xs);
+  font-weight: var(--vc-font-medium);
+  line-height: 1;
+}
+
+.vc-badge-primary {
+  background: var(--vc-primary-light);
+  color: var(--vc-primary-deep);
+}
+
+.vc-badge-success {
+  background: var(--vc-success-light);
+  color: var(--vc-success);
+}
+
+.vc-badge-warn {
+  background: var(--vc-warn-light);
+  color: var(--vc-warn);
+}
+
+.vc-badge-danger {
+  background: var(--vc-danger-light);
+  color: var(--vc-danger);
+}
+
+/* Divider */
+.vc-divider {
+  height: 1px;
+  background: var(--vc-border);
+  border: none;
+  margin: var(--vc-space-lg) 0;
+}
+
+/* Scrollbars */
+.vc-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.vc-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.vc-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--vc-border-strong);
+  border-radius: var(--vc-radius-xs);
+}
+
+.vc-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--vc-fg-subtle);
+}
+
+/* Utility Classes */
+.vc-flex {
+  display: flex;
+}
+
+.vc-flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.vc-items-center {
+  align-items: center;
+}
+
+.vc-justify-center {
+  justify-content: center;
+}
+
+.vc-justify-between {
+  justify-content: space-between;
+}
+
+.vc-gap-sm {
+  gap: var(--vc-space-sm);
+}
+
+.vc-gap-md {
+  gap: var(--vc-space-md);
+}
+
+.vc-gap-lg {
+  gap: var(--vc-space-lg);
+}
+
+.vc-w-full {
+  width: 100%;
+}
+
+.vc-h-full {
+  height: 100%;
+}
+
+.vc-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

@@ -1,0 +1,114 @@
+name: Publish Packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: false
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@anthropic-ai'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        run: pnpm test --run
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Update versions (if manual trigger)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          cd packages/core && npm version $VERSION --no-git-tag-version
+          cd ../ui-kit && npm version $VERSION --no-git-tag-version
+          cd ../adapters/agora-web && npm version $VERSION --no-git-tag-version
+
+      - name: Publish @diag/video-call-core
+        run: |
+          cd packages/core
+          pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish @diag/video-call-ui-kit
+        run: |
+          cd packages/ui-kit
+          pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish @diag/agora-web-adapter
+        run: |
+          cd packages/adapters/agora-web
+          pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            ```bash
+            # Configure npm for GitHub Packages
+            echo "@diag:registry=https://npm.pkg.github.com" >> .npmrc
+
+            # Install packages
+            pnpm add @diag/video-call-core @diag/video-call-ui-kit
+            pnpm add @diag/agora-web-adapter agora-rtc-sdk-ng
+            ```
+
+            See the [README](https://github.com/YOUR_ORG/diag-video-call-ui-kit#readme) for usage instructions.

@@ -1,0 +1,47 @@
+{
+  "name": "@diag/agora-web-adapter",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Agora Web SDK adapter for DIAG Video Call UI Kit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_ORG/diag-video-call-ui-kit.git",
+    "directory": "packages/adapters/agora-web"
+  },
+  "homepage": "https://github.com/YOUR_ORG/diag-video-call-ui-kit/tree/main/packages/adapters/agora-web#readme",
+  "bugs": {
+    "url": "https://github.com/YOUR_ORG/diag-video-call-ui-kit/issues"
+  },
+  "license": "MIT",
+  "author": "DIAG",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc --project tsconfig.build.json",
+    "dev": "vite build --watch"
+  },
+  "peerDependencies": {
+    "@diag/video-call-core": "^1.0.0",
+    "agora-rtc-sdk-ng": "^4.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "vite": "^5.1.4",
+    "typescript": "~5.4.0"
+  }
+}

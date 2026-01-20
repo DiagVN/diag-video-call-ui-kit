@@ -1,0 +1,53 @@
+{
+  "name": "@diag/video-call-ui-kit",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Vue 3 UI components for DIAG Video Call with DIAG brand styling",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_ORG/diag-video-call-ui-kit.git",
+    "directory": "packages/ui-kit"
+  },
+  "homepage": "https://github.com/YOUR_ORG/diag-video-call-ui-kit/tree/main/packages/ui-kit#readme",
+  "bugs": {
+    "url": "https://github.com/YOUR_ORG/diag-video-call-ui-kit/issues"
+  },
+  "license": "MIT",
+  "author": "DIAG",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "style": "./dist/style.css",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc --project tsconfig.build.json",
+    "dev": "vite build --watch"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0",
+    "vue-i18n": "^9.9.0",
+    "@diag/video-call-core": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.1.4",
+    "typescript": "~5.4.0",
+    "vue": "^3.4.0",
+    "vue-i18n": "^9.9.0"
+  }
+}
