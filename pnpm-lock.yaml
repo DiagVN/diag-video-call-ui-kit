@@ -50,13 +50,13 @@ importers:
 
   apps/playground:
     dependencies:
-      '@anthropic-ai/agora-web-adapter':
+      '@diag/agora-web-adapter':
         specifier: workspace:*
         version: link:../../packages/adapters/agora-web
-      '@anthropic-ai/video-call-core':
+      '@diag/video-call-core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@anthropic-ai/video-call-ui-kit':
+      '@diag/video-call-ui-kit':
         specifier: workspace:*
         version: link:../../packages/ui-kit
       agora-rtc-sdk-ng:
@@ -90,7 +90,7 @@ importers:
 
   packages/adapters/agora-web:
     dependencies:
-      '@anthropic-ai/video-call-core':
+      '@diag/video-call-core':
         specifier: ^1.0.0
         version: link:../../core
       agora-rtc-sdk-ng:
@@ -131,7 +131,7 @@ importers:
 
   packages/ui-kit:
     dependencies:
-      '@anthropic-ai/video-call-core':
+      '@diag/video-call-core':
         specifier: ^1.0.0
         version: link:../core
     devDependencies:

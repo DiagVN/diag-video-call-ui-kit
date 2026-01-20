@@ -70,7 +70,7 @@ diag-video-call-ui-kit/
 
 ### Using GitHub Packages
 
-Configure npm to use GitHub Packages for the `@anthropic-ai` scope:
+Configure npm to use GitHub Packages for the `@diag` scope:
 
 ```bash
 # Create or edit .npmrc in your project root
