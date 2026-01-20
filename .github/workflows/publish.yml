@@ -3,11 +3,11 @@ name: Publish Packages
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g., 1.0.0)'
+        description: "Version to publish (e.g., 1.0.0)"
         required: false
         type: string
 
@@ -25,9 +25,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@diag'
+          node-version: "20"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@diag"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -66,23 +66,23 @@ jobs:
       - name: Publish @diag/video-call-core
         run: |
           cd packages/core
-          pnpm publish --no-git-checks --access public
+          pnpm publish --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish @diag/video-call-ui-kit
         run: |
           cd packages/ui-kit
-          pnpm publish --no-git-checks --access public
+          pnpm publish --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish @diag/agora-web-adapter
         run: |
           cd packages/adapters/agora-web
-          pnpm publish --no-git-checks --access public
+          pnpm publish --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   create-release:
     needs: build
