@@ -580,6 +580,24 @@ pnpm lint
 pnpm format
 ```
 
+### Release via CI/CD
+
+This repo ships packages through GitHub Actions. Two options:
+
+- Tag-based release:
+  - Bump versions in each workspace package (e.g., `packages/core`, `packages/ui-kit`, `packages/adapters/agora-web`).
+  - Create and push a tag following `vX.Y.Z` (for example `v1.0.0`).
+  - CI will run tests, build all packages, publish to GitHub Packages, and create a GitHub Release.
+
+- Manual dispatch with version:
+  - In GitHub → Actions → "Publish Packages", click "Run workflow".
+  - Provide `version` (e.g., `1.0.1`). The workflow will publish using that version without committing version bumps.
+
+Notes:
+- Publishing uses the repository `GITHUB_TOKEN` with `packages: write` permission; no extra secrets required.
+- Consumers must configure `.npmrc` with `@diag:registry=https://npm.pkg.github.com`.
+- The workflow runs on `ubuntu-latest` with Node 20 and pnpm, and caches dependencies for speed.
+
 ### Playground Environment
 
 Create `apps/playground/.env.local`:
