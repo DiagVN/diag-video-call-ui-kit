@@ -4,8 +4,10 @@
     "outDir": "./dist",
     "declaration": true,
     "declarationDir": "./dist",
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "skipLibCheck": true,
+    "noEmit": false
   },
   "include": ["src/**/*.ts", "src/**/*.vue"],
-  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+  "exclude": ["node_modules", "dist", "src/**/*.spec.ts"]
 }

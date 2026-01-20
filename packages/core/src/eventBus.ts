@@ -6,7 +6,7 @@ import type { EventBus, EventMap } from './events'
  * SSR-safe implementation using mitt
  */
 export function createEventBus(): EventBus {
-  const emitter = mitt<EventMap>()
+  const emitter = mitt() as mitt.Emitter<EventMap>
 
   return {
     on: emitter.on,

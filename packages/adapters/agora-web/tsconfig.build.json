@@ -4,8 +4,10 @@
     "outDir": "./dist",
     "declaration": true,
     "declarationDir": "./dist",
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "skipLibCheck": true,
+    "noEmit": false
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "src/**/*.spec.ts"]
 }

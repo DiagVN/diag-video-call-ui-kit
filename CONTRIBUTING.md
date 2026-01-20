@@ -13,7 +13,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_ORG/diag-video-call-ui-kit.git
+git clone https://github.com/DiagVN/diag-video-call-ui-kit.git
 cd diag-video-call-ui-kit
 
 # Install dependencies

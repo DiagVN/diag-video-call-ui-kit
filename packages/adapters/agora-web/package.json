@@ -5,12 +5,12 @@
   "description": "Agora Web SDK adapter for DIAG Video Call UI Kit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_ORG/diag-video-call-ui-kit.git",
+    "url": "https://github.com/DiagVN/diag-video-call-ui-kit.git",
     "directory": "packages/adapters/agora-web"
   },
-  "homepage": "https://github.com/YOUR_ORG/diag-video-call-ui-kit/tree/main/packages/adapters/agora-web#readme",
+  "homepage": "https://github.com/DiagVN/diag-video-call-ui-kit/tree/main/packages/adapters/agora-web#readme",
   "bugs": {
-    "url": "https://github.com/YOUR_ORG/diag-video-call-ui-kit/issues"
+    "url": "https://github.com/DiagVN/diag-video-call-ui-kit/issues"
   },
   "license": "MIT",
   "author": "DIAG",
@@ -32,7 +32,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build && tsc --project tsconfig.build.json",
+    "build": "vite build",
     "dev": "vite build --watch"
   },
   "peerDependencies": {

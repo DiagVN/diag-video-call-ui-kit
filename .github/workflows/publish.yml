@@ -111,4 +111,4 @@ jobs:
             pnpm add @diag/agora-web-adapter agora-rtc-sdk-ng
             ```
 
-            See the [README](https://github.com/YOUR_ORG/diag-video-call-ui-kit#readme) for usage instructions.
+            See the [README](https://github.com/DiagVN/diag-video-call-ui-kit#readme) for usage instructions.
