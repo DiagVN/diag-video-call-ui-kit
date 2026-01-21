@@ -1,6 +1,6 @@
 {
   "name": "@diagvn/video-call-ui-kit",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "type": "module",
   "description": "Vue 3 UI components for DIAG Video Call with DIAG brand styling",
   "repository": {
