@@ -39,8 +39,8 @@
     "agora-rtc-sdk-ng": "^4.20.0"
   },
   "devDependencies": {
-    "@types/node": "^20.11.19",
-    "vite": "^5.1.4",
-    "typescript": "~5.4.0"
+    "@types/node": "^20.14.0",
+    "vite": "^5.2.0",
+    "typescript": "~5.5.0"
   }
 }
