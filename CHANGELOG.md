@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.12] - 2026-01-21
+
+### Added
+- Automated dependency synchronization system
+  - New `pnpm sync-deps` command to auto-sync root dependencies with packages
+  - `scripts/sync-dependencies.js` script for dependency management
+  - Syncs: `vue`, `vue-i18n`, `pinia`, `typescript`, `vite`, `@types/node`, `@vitejs/plugin-vue`
+
+### Fixed
+- Synchronized `vue-i18n` version across all packages (^11.2.8)
+- Ensured consistent `pinia` version (^3.0.4) in all packages
+- Aligned all package dependencies with root workspace
+
+### Documentation
+- Added `DEPENDENCY_SYNC.md` with complete sync system documentation
+
 ## [1.0.11] - 2026-01-21
 
 ### Changed
