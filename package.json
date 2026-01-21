@@ -18,7 +18,8 @@
     "test:ui": "vitest --ui",
     "lint": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,ts,vue,json,md,css}\"",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.json --composite false"
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json --composite false",
+    "sync-deps": "node scripts/sync-dependencies.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -33,8 +34,8 @@
     "jsdom": "^24.0.0",
     "pinia": "^3.0.4",
     "prettier": "^3.2.5",
-    "typescript": "~5.4.0",
-    "vite": "^5.1.4",
+    "typescript": "~5.5.0",
+    "vite": "^5.2.0",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^1.3.1",
     "vue": "^3.4.0",

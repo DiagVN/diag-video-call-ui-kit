@@ -36,11 +36,15 @@
   },
   "peerDependencies": {
     "@diagvn/video-call-core": "^1.0.0",
-    "agora-rtc-sdk-ng": "^4.20.0"
+    "agora-rtc-sdk-ng": "^4.20.0",
+    "vue": "^3.4.0",
+    "vue-i18n": "^11.2.8",
+    "pinia": "^3.0.4"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
     "vite": "^5.2.0",
-    "typescript": "~5.5.0"
+    "typescript": "~5.5.0",
+    "@vitejs/plugin-vue": "^5.0.4"
   }
 }

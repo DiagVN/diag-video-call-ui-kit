@@ -38,15 +38,16 @@
   },
   "peerDependencies": {
     "vue": "^3.4.0",
-    "vue-i18n": "^9.9.0",
-    "@diagvn/video-call-core": "^1.0.0"
+    "vue-i18n": "^11.2.8",
+    "@diagvn/video-call-core": "^1.0.0",
+    "pinia": "^3.0.4"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
-    "@vitejs/plugin-vue": "^5.2.0",
+    "@vitejs/plugin-vue": "^5.0.4",
     "vite": "^5.2.0",
     "typescript": "~5.5.0",
     "vue": "^3.4.0",
-    "vue-i18n": "^9.9.0"
+    "vue-i18n": "^11.2.8"
   }
 }
