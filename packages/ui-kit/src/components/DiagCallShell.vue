@@ -81,12 +81,16 @@ const props = withDefaults(defineProps<DiagCallShellProps>(), {
 const themeClass = computed(() => (props.theme === 'dark' ? 'vc-theme-dark' : ''))
 
 const networkQualityLevel = computed(() => {
-  if (props.networkQuality === undefined) return 'unknown'
-  if (props.networkQuality >= 4) return 'excellent'
-  if (props.networkQuality === 3) return 'good'
-  if (props.networkQuality === 2) return 'fair'
-  if (props.networkQuality === 1) return 'poor'
-  return 'veryPoor'
+  // Network quality levels from Agora SDK
+  // 0: unknown, 1: excellent, 2: good, 3: fair, 4: poor, 5: veryPoor, 6: down
+  if (props.networkQuality === undefined || props.networkQuality === 0) return 'unknown'
+  if (props.networkQuality === 1) return 'excellent'
+  if (props.networkQuality === 2) return 'good'
+  if (props.networkQuality === 3) return 'fair'
+  if (props.networkQuality === 4) return 'poor'
+  if (props.networkQuality === 5) return 'veryPoor'
+  if (props.networkQuality === 6) return 'down'
+  return 'unknown'
 })
 
 const formattedDuration = computed(() => {
@@ -163,7 +167,8 @@ const formattedDuration = computed(() => {
 }
 
 .vc-call-shell__network-icon--poor,
-.vc-call-shell__network-icon--veryPoor {
+.vc-call-shell__network-icon--veryPoor,
+.vc-call-shell__network-icon--down {
   color: var(--vc-danger);
 }
 

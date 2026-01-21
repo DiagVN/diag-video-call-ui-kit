@@ -138,6 +138,7 @@ export interface VideoCallMessages {
       fair: string
       poor: string
       veryPoor: string
+      down: string
       unknown: string
     }
     // Time
@@ -277,6 +278,7 @@ export const vi: VideoCallMessages = {
       fair: 'Trung bình',
       poor: 'Kém',
       veryPoor: 'Rất kém',
+      down: 'Mạng ngừng hoạt động',
       unknown: 'Không xác định'
     },
     time: {
@@ -414,6 +416,7 @@ export const en: VideoCallMessages = {
       fair: 'Fair',
       poor: 'Poor',
       veryPoor: 'Very poor',
+      down: 'Network down',
       unknown: 'Unknown'
     },
     time: {

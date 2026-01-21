@@ -136,12 +136,17 @@ const tileClass = computed(() => ({
 }))
 
 const networkQualityLevel = computed(() => {
+  // Network quality levels from Agora SDK
+  // 0: unknown, 1: excellent, 2: good, 3: fair, 4: poor, 5: veryPoor, 6: down
   const q = props.participant.networkQuality
-  if (q >= 4) return 'excellent'
-  if (q === 3) return 'good'
-  if (q === 2) return 'fair'
-  if (q === 1) return 'poor'
-  return 'veryPoor'
+  if (q === undefined || q === 0) return 'unknown'
+  if (q === 1) return 'excellent'
+  if (q === 2) return 'good'
+  if (q === 3) return 'fair'
+  if (q === 4) return 'poor'
+  if (q === 5) return 'veryPoor'
+  if (q === 6) return 'down'
+  return 'unknown'
 })
 
 // Track if video is already attached to prevent duplicate calls
