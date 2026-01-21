@@ -216,13 +216,13 @@ onUnmounted(() => {
 .vc-video-tile__video :deep(div[id^="agora-video-player"]) {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover;
+  object-fit: contain !important;
 }
 
 .vc-video-tile__video :deep(div[id^="agora-video-player"]) video {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;
+  object-fit: contain !important;
 }
 
 .vc-video-tile__avatar {
@@ -238,7 +238,7 @@ onUnmounted(() => {
   width: 80px;
   height: 80px;
   border-radius: var(--vc-radius-full);
-  object-fit: cover;
+  object-fit: contain !important;
 }
 
 .vc-video-tile__avatar-initials {

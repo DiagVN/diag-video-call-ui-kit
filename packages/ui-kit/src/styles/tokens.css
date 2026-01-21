@@ -1,23 +1,24 @@
 /**
- * DIAG Video Call UI Kit - Design Tokens
- * 
- * CSS Variables for theming and brand consistency
- * Override these variables to customize the UI
+ * DIAG Video Call UI Kit - Design Tokens (Matched to DIAG.vn)
+ *
+ * Notes:
+ * - Primary brand blue: #0766F7 (DIAG brand blue)
+ * - Deep/navy blues kept for headers/gradients: #024473, #014473
  */
 
 :root {
-  /* DIAG Blue Color Palette */
-  --vc-blue-700: #014473;
-  --vc-blue-600: #024473;
-  --vc-blue-500: #2b85c5;
-  --vc-blue-400: #4a9dd4;
-  --vc-blue-300: #7bb6e0;
-  --vc-blue-200: #a8d0ed;
+  /* DIAG Brand Blue Palette (matched) */
+  --vc-blue-700: #014473; /* navy */
+  --vc-blue-600: #024473; /* deep */
+  --vc-blue-500: #0766f7; /* primary brand */
+  --vc-blue-400: #2b85c5; /* supporting / CTA alt */
+  --vc-blue-300: #4a9dd4;
+  --vc-blue-200: #7bb6e0;
   --vc-blue-100: #d4e9f7;
-  --vc-blue-50: #eaf5fc;
+  --vc-blue-50:  #eaf5fc;
 
   /* Semantic Colors (Light Theme) */
-  --vc-bg: #f6fafd;
+  --vc-bg: #f6faff;
   --vc-surface: #ffffff;
   --vc-fg: #0b1b2b;
   --vc-fg-muted: #5b6b7a;
@@ -25,7 +26,7 @@
   --vc-border: #e3ecf4;
   --vc-border-strong: #c8d8e5;
 
-  /* Primary (DIAG Blue) */
+  /* Primary (DIAG) */
   --vc-primary: var(--vc-blue-500);
   --vc-primary-strong: var(--vc-blue-600);
   --vc-primary-deep: var(--vc-blue-700);
@@ -36,11 +37,11 @@
   --vc-danger: #d63b3b;
   --vc-danger-light: #ffe5e5;
   --vc-danger-fg: #ffffff;
-  
+
   --vc-success: #1f9d55;
   --vc-success-light: #e6f7ed;
   --vc-success-fg: #ffffff;
-  
+
   --vc-warn: #f2a900;
   --vc-warn-light: #fff8e1;
   --vc-warn-fg: #2d2d2d;
@@ -49,9 +50,9 @@
   --vc-info-light: var(--vc-blue-50);
   --vc-info-fg: var(--vc-blue-700);
 
-  /* Gradients */
-  --vc-gradient: linear-gradient(135deg, #2b85c5 0%, #024473 100%);
-  --vc-gradient-subtle: linear-gradient(135deg, #7bb6e0 0%, #4a9dd4 100%);
+  /* Gradients (DIAG-ish) */
+  --vc-gradient: linear-gradient(135deg, #0766f7 0%, #014473 100%);
+  --vc-gradient-subtle: linear-gradient(135deg, #4a9dd4 0%, #2b85c5 100%);
 
   /* Border Radius */
   --vc-radius: 14px;
@@ -61,9 +62,9 @@
   --vc-radius-xs: 6px;
   --vc-radius-full: 9999px;
 
-  /* Shadows */
+  /* Shadows (tinted towards DIAG navy) */
   --vc-shadow: 0 8px 30px rgba(1, 68, 115, 0.12);
-  --vc-shadow-md: 0 4px 16px rgba(1, 68, 115, 0.1);
+  --vc-shadow-md: 0 4px 16px rgba(1, 68, 115, 0.10);
   --vc-shadow-sm: 0 2px 8px rgba(1, 68, 115, 0.08);
   --vc-shadow-inner: inset 0 2px 4px rgba(1, 68, 115, 0.06);
 
@@ -77,10 +78,8 @@
   --vc-space-3xl: 48px;
 
   /* Typography */
-  --vc-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    sans-serif;
-  --vc-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New',
-    monospace;
+  --vc-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --vc-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
   --vc-text-xs: 12px;
   --vc-text-sm: 13px;
@@ -129,11 +128,12 @@
   --vc-border: #2d3e50;
   --vc-border-strong: #3d5268;
 
-  --vc-primary-light: rgba(43, 133, 197, 0.15);
+  /* Make primary glow consistent with #0766F7 */
+  --vc-primary-light: rgba(7, 102, 247, 0.16);
   --vc-danger-light: rgba(214, 59, 59, 0.15);
   --vc-success-light: rgba(31, 157, 85, 0.15);
   --vc-warn-light: rgba(242, 169, 0, 0.15);
-  --vc-info-light: rgba(43, 133, 197, 0.15);
+  --vc-info-light: rgba(7, 102, 247, 0.15);
 
   --vc-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   --vc-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
@@ -146,6 +146,6 @@
 
 /* Focus Ring (Accessibility) */
 :root {
-  --vc-focus-ring: 0 0 0 3px rgba(43, 133, 197, 0.3);
-  --vc-focus-ring-danger: 0 0 0 3px rgba(214, 59, 59, 0.3);
+  --vc-focus-ring: 0 0 0 3px rgba(7, 102, 247, 0.30);
+  --vc-focus-ring-danger: 0 0 0 3px rgba(214, 59, 59, 0.30);
 }

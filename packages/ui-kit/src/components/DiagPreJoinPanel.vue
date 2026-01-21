@@ -212,7 +212,7 @@ defineExpose({
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .vc-prejoin-panel__avatar {
