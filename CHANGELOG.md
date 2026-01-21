@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.10] - 2026-01-21
+
+### Added
+- TypeScript type definitions for all packages
+  - Automatic `.d.ts` generation using `vite-plugin-dts`
+  - Full type support for TypeScript projects
+  - Declaration source maps for better debugging
+
+### Changed
+- **Updated Dependencies**
+  - Upgraded Pinia from 2.1.7 to 3.0.4 (latest major version)
+  - Pinia 3 brings improved performance and new composable features
+
 ## [1.0.9] - 2026-01-21
 
 ### Changed

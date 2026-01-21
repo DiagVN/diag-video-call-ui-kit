@@ -1,6 +1,6 @@
 {
   "name": "diag-video-call-ui-kit",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "private": true,
   "type": "module",
   "description": "DIAG Vue 3 Video Call UI Kit - Agora-ready with Vietnamese/English i18n",
