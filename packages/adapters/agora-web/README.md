@@ -1,4 +1,4 @@
-# @diag/agora-web-adapter
+# @diagvn/agora-web-adapter
 
 Agora Web SDK adapter for DIAG Video Call UI Kit. Implements the `Actions` interface to connect the headless core with Agora's RTC services.
 
@@ -13,13 +13,13 @@ Agora Web SDK adapter for DIAG Video Call UI Kit. Implements the `Actions` inter
 ## Installation
 
 ```bash
-pnpm add @diag/agora-web-adapter agora-rtc-sdk-ng
+pnpm add @diagvn/agora-web-adapter agora-rtc-sdk-ng
 ```
 
 ### Peer Dependencies
 
 ```bash
-pnpm add @diag/video-call-core agora-rtc-sdk-ng@^4.20.0
+pnpm add @diagvn/video-call-core agora-rtc-sdk-ng@^4.20.0
 ```
 
 ## Usage
@@ -27,8 +27,8 @@ pnpm add @diag/video-call-core agora-rtc-sdk-ng@^4.20.0
 ### Basic Setup
 
 ```ts
-import { useVideoCallStore, createEventBus } from '@diag/video-call-core'
-import { createAgoraAdapter } from '@diag/agora-web-adapter'
+import { useVideoCallStore, createEventBus } from '@diagvn/video-call-core'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter'
 
 const eventBus = createEventBus()
 const adapter = createAgoraAdapter({
@@ -58,7 +58,7 @@ await store.join({
 ### Video Rendering
 
 ```ts
-import { createAgoraRenderer } from '@diag/agora-web-adapter'
+import { createAgoraRenderer } from '@diagvn/agora-web-adapter'
 
 const renderer = createAgoraRenderer()
 

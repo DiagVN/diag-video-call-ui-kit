@@ -17,7 +17,7 @@ import type {
   Participant,
   NetworkQuality,
   MediaDevice
-} from '@diag/video-call-core'
+} from '@diagvn/video-call-core'
 
 /**
  * Agora Web SDK Adapter

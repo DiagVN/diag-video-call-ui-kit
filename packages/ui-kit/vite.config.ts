@@ -12,7 +12,7 @@ export default defineConfig({
       fileName: format => `index.${format === 'es' ? 'js' : 'cjs'}`
     },
     rollupOptions: {
-      external: ['vue', 'vue-i18n', '@diag/video-call-core'],
+      external: ['vue', 'vue-i18n', '@diagvn/video-call-core'],
       output: {
         globals: {
           vue: 'Vue',

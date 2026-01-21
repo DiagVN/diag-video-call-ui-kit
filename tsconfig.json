@@ -16,9 +16,9 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@diag/video-call-core": ["./packages/core/src"],
-      "@diag/video-call-ui-kit": ["./packages/ui-kit/src"],
-      "@diag/agora-web-adapter": ["./packages/adapters/agora-web/src"]
+      "@diagvn/video-call-core": ["./packages/core/src"],
+      "@diagvn/video-call-ui-kit": ["./packages/ui-kit/src"],
+      "@diagvn/agora-web-adapter": ["./packages/adapters/agora-web/src"]
     }
   },
   "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.vue", "apps/*/src/**/*.ts", "apps/*/src/**/*.vue"],

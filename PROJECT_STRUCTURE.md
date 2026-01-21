@@ -88,7 +88,7 @@ diag-video-call-ui-kit/
 
 ## 🎯 Key Features Implemented
 
-### 1. **Core Package** (`@diag/video-call-core`)
+### 1. **Core Package** (`@diagvn/video-call-core`)
 - ✅ SSR-safe headless state machine
 - ✅ TypeScript types: CallState, Participant, Devices, CallError
 - ✅ Typed event bus with mitt
@@ -99,7 +99,7 @@ diag-video-call-ui-kit/
 - ✅ Speaking detection support
 - ✅ Vitest unit tests
 
-### 2. **UI Kit Package** (`@diag/video-call-ui-kit`)
+### 2. **UI Kit Package** (`@diagvn/video-call-ui-kit`)
 - ✅ DIAG brand styling (CSS variables)
   - Blue gradient: `#2B85C5 → #024473`
   - Clean clinical design
@@ -117,7 +117,7 @@ diag-video-call-ui-kit/
 - ✅ A11y: ARIA labels, focus rings
 - ✅ Component tests with Vue Test Utils
 
-### 3. **Agora Adapter** (`@diag/agora-web-adapter`)
+### 3. **Agora Adapter** (`@diagvn/agora-web-adapter`)
 - ✅ Full Actions interface implementation
 - ✅ Event mapping (Agora → core events)
 - ✅ Token renewal flow
@@ -162,14 +162,14 @@ pnpm dev
 ```vue
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useVideoCallStore, createEventBus } from '@diag/video-call-core'
+import { useVideoCallStore, createEventBus } from '@diagvn/video-call-core'
 import {
   DiagPreJoinPanel,
   DiagCallShell,
   DiagVideoGrid,
   DiagCallControls
-} from '@diag/video-call-ui-kit'
-import { createAgoraAdapter } from '@diag/agora-web-adapter'
+} from '@diagvn/video-call-ui-kit'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter'
 
 const store = useVideoCallStore()
 

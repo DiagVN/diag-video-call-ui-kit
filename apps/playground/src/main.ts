@@ -3,7 +3,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n'
 import { createRouter, createWebHistory } from 'vue-router'
-import { createVideoCallI18n } from '@diag/video-call-ui-kit'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
 
 import App from './App.vue'
 import PreJoinView from './views/PreJoinView.vue'

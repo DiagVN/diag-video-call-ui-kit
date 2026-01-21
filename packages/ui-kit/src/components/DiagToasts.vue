@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ToastMessage } from '@diag/video-call-core'
+import type { ToastMessage } from '@diagvn/video-call-core'
 
 export interface DiagToastsProps {
   toasts: readonly ToastMessage[]

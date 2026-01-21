@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### Core Package (`@diag/video-call-core`)
+#### Core Package (`@diagvn/video-call-core`)
 - Initial release of headless video call state management
 - Pinia store with reactive state (callState, participants, duration, etc.)
 - Typed event bus using mitt for SDK events
@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full TypeScript definitions for all types
 - SSR-safe implementation (no browser APIs in core)
 
-#### UI Kit Package (`@diag/video-call-ui-kit`)
+#### UI Kit Package (`@diagvn/video-call-ui-kit`)
 - DIAG brand styling with CSS custom properties
 - Dark mode support via `.vc-theme-dark` class
 - Vietnamese (`vi`) and English (`en`) translations
@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DiagToasts` - Toast notification system
 - `DiagBanner` - Status banners (reconnecting, poor network, etc.)
 
-#### Agora Adapter (`@diag/agora-web-adapter`)
+#### Agora Adapter (`@diagvn/agora-web-adapter`)
 - Full `Actions` interface implementation for Agora Web SDK
 - `createAgoraAdapter()` factory function
 - `createAgoraRenderer()` for video tile rendering

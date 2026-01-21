@@ -8,8 +8,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterView } from 'vue-router'
-import { useVideoCallStore } from '@diag/video-call-core'
-import { DiagToasts } from '@diag/video-call-ui-kit'
+import { useVideoCallStore } from '@diagvn/video-call-core'
+import { DiagToasts } from '@diagvn/video-call-ui-kit'
 
 const store = useVideoCallStore()
 const themeClass = ref('')

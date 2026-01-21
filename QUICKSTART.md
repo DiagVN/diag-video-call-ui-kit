@@ -47,8 +47,8 @@ The playground will be available at `http://localhost:5173`
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n'
-import { createVideoCallI18n } from '@diag/video-call-ui-kit'
-import '@diag/video-call-ui-kit/style.css'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
+import '@diagvn/video-call-ui-kit/style.css'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -62,9 +62,9 @@ app.use(pinia).use(i18n).mount('#app')
 ```vue
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useVideoCallStore, createEventBus } from '@diag/video-call-core'
-import { DiagPreJoinPanel, DiagCallShell, DiagVideoGrid } from '@diag/video-call-ui-kit'
-import { createAgoraAdapter, createAgoraRenderer } from '@diag/agora-web-adapter'
+import { useVideoCallStore, createEventBus } from '@diagvn/video-call-core'
+import { DiagPreJoinPanel, DiagCallShell, DiagVideoGrid } from '@diagvn/video-call-ui-kit'
+import { createAgoraAdapter, createAgoraRenderer } from '@diagvn/agora-web-adapter'
 
 const store = useVideoCallStore()
 
@@ -152,7 +152,7 @@ async function handleJoin(options) {
 ### Add Custom Translations
 
 ```typescript
-import { createVideoCallI18n } from '@diag/video-call-ui-kit'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
 
 const i18n = createI18n(
   createVideoCallI18n({
@@ -210,7 +210,7 @@ pnpm lint
 pnpm build
 
 # Build specific package
-pnpm --filter @diag/video-call-core build
+pnpm --filter @diagvn/video-call-core build
 
 # Build playground
 pnpm build:playground

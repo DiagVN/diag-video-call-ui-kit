@@ -90,7 +90,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import type { Participant } from '@diag/video-call-core'
+import type { Participant } from '@diagvn/video-call-core'
 
 export interface VideoRenderer {
   attachVideo(el: HTMLElement, participantId: string, kind: 'camera' | 'screen'): void

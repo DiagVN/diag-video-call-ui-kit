@@ -53,7 +53,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CallState, NetworkQuality } from '@diag/video-call-core'
+import type { CallState, NetworkQuality } from '@diagvn/video-call-core'
 
 export interface DiagCallShellProps {
   /** Layout mode */

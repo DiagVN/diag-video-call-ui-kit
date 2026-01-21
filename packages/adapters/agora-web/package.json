@@ -1,5 +1,5 @@
 {
-  "name": "@diag/agora-web-adapter",
+  "name": "@diagvn/agora-web-adapter",
   "version": "1.0.0",
   "type": "module",
   "description": "Agora Web SDK adapter for DIAG Video Call UI Kit",
@@ -35,7 +35,7 @@
     "dev": "vite build --watch"
   },
   "peerDependencies": {
-    "@diag/video-call-core": "^1.0.0",
+    "@diagvn/video-call-core": "^1.0.0",
     "agora-rtc-sdk-ng": "^4.20.0"
   },
   "devDependencies": {

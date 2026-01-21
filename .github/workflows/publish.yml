@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: "20"
           registry-url: "https://npm.pkg.github.com"
-          scope: "@diag"
+          scope: "@diagvn"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -68,21 +68,21 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish @diag/video-call-core
+      - name: Publish @diagvn/video-call-core
         run: |
           cd packages/core
           pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish @diag/video-call-ui-kit
+      - name: Publish @diagvn/video-call-ui-kit
         run: |
           cd packages/ui-kit
           pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish @diag/agora-web-adapter
+      - name: Publish @diagvn/agora-web-adapter
         run: |
           cd packages/adapters/agora-web
           pnpm publish --no-git-checks
@@ -109,11 +109,11 @@ jobs:
 
             ```bash
             # Configure npm for GitHub Packages
-            echo "@diag:registry=https://npm.pkg.github.com" >> .npmrc
+            echo "@diagvn:registry=https://npm.pkg.github.com" >> .npmrc
 
             # Install packages
-            pnpm add @diag/video-call-core @diag/video-call-ui-kit
-            pnpm add @diag/agora-web-adapter agora-rtc-sdk-ng
+            pnpm add @diagvn/video-call-core @diagvn/video-call-ui-kit
+            pnpm add @diagvn/agora-web-adapter agora-rtc-sdk-ng
             ```
 
             See the [README](https://github.com/DiagVN/diag-video-call-ui-kit#readme) for usage instructions.

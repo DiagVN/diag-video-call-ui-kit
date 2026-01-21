@@ -10,7 +10,7 @@ export default defineConfig({
       fileName: format => `index.${format === 'es' ? 'js' : 'cjs'}`
     },
     rollupOptions: {
-      external: ['@diag/video-call-core', 'agora-rtc-sdk-ng'],
+      external: ['@diagvn/video-call-core', 'agora-rtc-sdk-ng'],
       output: {
         globals: {
           'agora-rtc-sdk-ng': 'AgoraRTC'

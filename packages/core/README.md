@@ -1,4 +1,4 @@
-# @diag/video-call-core
+# @diagvn/video-call-core
 
 Headless core library for DIAG Video Call UI Kit. Provides SDK-agnostic state management, typed events, and actions interface.
 
@@ -13,7 +13,7 @@ Headless core library for DIAG Video Call UI Kit. Provides SDK-agnostic state ma
 ## Installation
 
 ```bash
-pnpm add @diag/video-call-core
+pnpm add @diagvn/video-call-core
 ```
 
 ### Peer Dependencies
@@ -28,7 +28,7 @@ pnpm add vue@^3.4.0 pinia@^2.1.7
 
 ```ts
 import { createPinia } from 'pinia'
-import { useVideoCallStore, createEventBus } from '@diag/video-call-core'
+import { useVideoCallStore, createEventBus } from '@diagvn/video-call-core'
 
 const pinia = createPinia()
 app.use(pinia)
@@ -39,8 +39,8 @@ const store = useVideoCallStore()
 ### With Adapter
 
 ```ts
-import { useVideoCallStore, createEventBus } from '@diag/video-call-core'
-import { createAgoraAdapter } from '@diag/agora-web-adapter'
+import { useVideoCallStore, createEventBus } from '@diagvn/video-call-core'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter'
 
 const eventBus = createEventBus()
 const adapter = createAgoraAdapter({ appId: 'YOUR_APP_ID', eventBus })
@@ -88,7 +88,7 @@ store.destroy()
 ### Event Bus
 
 ```ts
-import { createEventBus } from '@diag/video-call-core'
+import { createEventBus } from '@diagvn/video-call-core'
 
 const eventBus = createEventBus()
 
@@ -125,7 +125,7 @@ import type {
   Actions,
   AdapterConfig,
   AdapterFactory
-} from '@diag/video-call-core'
+} from '@diagvn/video-call-core'
 ```
 
 ### CallState
@@ -167,7 +167,7 @@ interface JoinOptions {
 ## Creating a Custom Adapter
 
 ```ts
-import type { Actions, AdapterConfig, EventBus } from '@diag/video-call-core'
+import type { Actions, AdapterConfig, EventBus } from '@diagvn/video-call-core'
 
 class MyCustomAdapter implements Actions {
   constructor(private config: AdapterConfig) {}

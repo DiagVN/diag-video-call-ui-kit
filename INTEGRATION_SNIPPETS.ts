@@ -11,8 +11,8 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n'
-import { createVideoCallI18n } from '@diag/video-call-ui-kit'
-import '@diag/video-call-ui-kit/style.css'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
+import '@diagvn/video-call-ui-kit/style.css'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -29,14 +29,14 @@ app.use(pinia).use(i18n).mount('#app')
 /*
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useVideoCallStore, createEventBus } from '@diag/video-call-core'
+import { useVideoCallStore, createEventBus } from '@diagvn/video-call-core'
 import {
   DiagPreJoinPanel,
   DiagCallShell,
   DiagVideoGrid,
   DiagCallControls
-} from '@diag/video-call-ui-kit'
-import { createAgoraAdapter, createAgoraRenderer } from '@diag/agora-web-adapter'
+} from '@diagvn/video-call-ui-kit'
+import { createAgoraAdapter, createAgoraRenderer } from '@diagvn/agora-web-adapter'
 
 const store = useVideoCallStore()
 const renderer = ref(null)
@@ -162,7 +162,7 @@ async function handleJoin(options: { joinMuted: boolean; joinVideoOff: boolean }
 
 /*
 import { createI18n } from 'vue-i18n'
-import { createVideoCallI18n } from '@diag/video-call-ui-kit'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
 
 const i18n = createI18n(
   createVideoCallI18n({
@@ -194,7 +194,7 @@ const i18n = createI18n(
 
 /*
 // Listen for token expiry events
-import { useVideoCallStore } from '@diag/video-call-core'
+import { useVideoCallStore } from '@diagvn/video-call-core'
 
 const store = useVideoCallStore()
 
@@ -224,7 +224,7 @@ store.eventBus.on('token-expired', () => {
 // ============================================================================
 
 /*
-import type { VideoRenderer } from '@diag/video-call-ui-kit'
+import type { VideoRenderer } from '@diagvn/video-call-ui-kit'
 
 // Create your own renderer if not using Agora
 const customRenderer: VideoRenderer = {
@@ -257,7 +257,7 @@ const customRenderer: VideoRenderer = {
 // ============================================================================
 
 /*
-import type { Actions, AdapterConfig, JoinOptions } from '@diag/video-call-core'
+import type { Actions, AdapterConfig, JoinOptions } from '@diagvn/video-call-core'
 
 class MockAdapter implements Actions {
   private eventBus: AdapterConfig['eventBus']
@@ -312,8 +312,8 @@ store.setAdapter(mockAdapter)
 /*
 // composables/useVideoCall.ts
 import { ref, computed } from 'vue'
-import { useVideoCallStore, createEventBus } from '@diag/video-call-core'
-import { createAgoraAdapter } from '@diag/agora-web-adapter'
+import { useVideoCallStore, createEventBus } from '@diagvn/video-call-core'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter'
 
 export function useVideoCall() {
   const store = useVideoCallStore()

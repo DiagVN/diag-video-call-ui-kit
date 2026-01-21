@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Participant } from '@diag/video-call-core'
+import type { Participant } from '@diagvn/video-call-core'
 import DiagVideoTile from './DiagVideoTile.vue'
 import type { VideoRenderer } from './DiagVideoTile.vue'
 

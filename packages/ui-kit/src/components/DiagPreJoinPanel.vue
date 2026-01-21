@@ -96,7 +96,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Devices } from '@diag/video-call-core'
+import type { Devices } from '@diagvn/video-call-core'
 
 export interface DiagPreJoinPanelProps {
   /** Available devices */

@@ -38,13 +38,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useVideoCallStore } from '@diag/video-call-core'
+import { useVideoCallStore } from '@diagvn/video-call-core'
 import {
   DiagCallShell,
   DiagVideoGrid,
   DiagCallControls,
   DiagBanner
-} from '@diag/video-call-ui-kit'
+} from '@diagvn/video-call-ui-kit'
 
 const router = useRouter()
 const store = useVideoCallStore()

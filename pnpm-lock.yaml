@@ -68,13 +68,13 @@ importers:
 
   apps/playground:
     dependencies:
-      '@diag/agora-web-adapter':
+      '@diagvn/agora-web-adapter':
         specifier: workspace:*
         version: link:../../packages/adapters/agora-web
-      '@diag/video-call-core':
+      '@diagvn/video-call-core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@diag/video-call-ui-kit':
+      '@diagvn/video-call-ui-kit':
         specifier: workspace:*
         version: link:../../packages/ui-kit
       agora-rtc-sdk-ng:
@@ -108,7 +108,7 @@ importers:
 
   packages/adapters/agora-web:
     dependencies:
-      '@diag/video-call-core':
+      '@diagvn/video-call-core':
         specifier: ^1.0.0
         version: link:../../core
       agora-rtc-sdk-ng:
@@ -149,7 +149,7 @@ importers:
 
   packages/ui-kit:
     dependencies:
-      '@diag/video-call-core':
+      '@diagvn/video-call-core':
         specifier: ^1.0.0
         version: link:../core
     devDependencies:

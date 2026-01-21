@@ -6,13 +6,13 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@diag/video-call-core': fileURLToPath(
+      '@diagvn/video-call-core': fileURLToPath(
         new URL('../../packages/core/src', import.meta.url)
       ),
-      '@diag/video-call-ui-kit': fileURLToPath(
+      '@diagvn/video-call-ui-kit': fileURLToPath(
         new URL('../../packages/ui-kit/src', import.meta.url)
       ),
-      '@diag/agora-web-adapter': fileURLToPath(
+      '@diagvn/agora-web-adapter': fileURLToPath(
         new URL('../../packages/adapters/agora-web/src', import.meta.url)
       )
     }

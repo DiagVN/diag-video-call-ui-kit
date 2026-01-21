@@ -35,9 +35,9 @@
 
 | Package | Description |
 |---------|-------------|
-| [`@diag/video-call-core`](./packages/core) | Headless state machine (SSR-safe) |
-| [`@diag/video-call-ui-kit`](./packages/ui-kit) | Vue 3 components + DIAG styles |
-| [`@diag/agora-web-adapter`](./packages/adapters/agora-web) | Agora Web SDK adapter |
+| [`@diagvn/video-call-core`](./packages/core) | Headless state machine (SSR-safe) |
+| [`@diagvn/video-call-ui-kit`](./packages/ui-kit) | Vue 3 components + DIAG styles |
+| [`@diagvn/agora-web-adapter`](./packages/adapters/agora-web) | Agora Web SDK adapter |
 
 ## 📁 Project Structure
 
@@ -70,27 +70,27 @@ diag-video-call-ui-kit/
 
 ### Using GitHub Packages
 
-Configure npm to use GitHub Packages for the `@diag` scope:
+Configure npm to use GitHub Packages for the `@diagvn` scope:
 
 ```bash
 # Create or edit .npmrc in your project root
-echo "@diag:registry=https://npm.pkg.github.com" >> .npmrc
+echo "@diagvn:registry=https://npm.pkg.github.com" >> .npmrc
 ```
 
 Then install the packages:
 
 ```bash
 # Using pnpm (recommended)
-pnpm add @diag/video-call-core @diag/video-call-ui-kit
+pnpm add @diagvn/video-call-core @diagvn/video-call-ui-kit
 
 # With Agora adapter
-pnpm add @diag/agora-web-adapter agora-rtc-sdk-ng
+pnpm add @diagvn/agora-web-adapter agora-rtc-sdk-ng
 
 # Using npm
-npm install @diag/video-call-core @diag/video-call-ui-kit
+npm install @diagvn/video-call-core @diagvn/video-call-ui-kit
 
 # Using yarn
-yarn add @diag/video-call-core @diag/video-call-ui-kit
+yarn add @diagvn/video-call-core @diagvn/video-call-ui-kit
 ```
 
 ### Peer Dependencies
@@ -108,10 +108,10 @@ pnpm add vue@^3.4.0 pinia@^2.1.7 vue-i18n@^9.9.0
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n'
-import { createVideoCallI18n } from '@diag/video-call-ui-kit'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
 
 // Import DIAG styles
-import '@diag/video-call-ui-kit/style.css'
+import '@diagvn/video-call-ui-kit/style.css'
 
 import App from './App.vue'
 
@@ -131,10 +131,10 @@ app.mount('#app')
 ```vue
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { DiagPreJoinPanel } from '@diag/video-call-ui-kit'
-import { useVideoCallStore, createEventBus } from '@diag/video-call-core'
-import { createAgoraAdapter } from '@diag/agora-web-adapter'
-import type { Devices } from '@diag/video-call-core'
+import { DiagPreJoinPanel } from '@diagvn/video-call-ui-kit'
+import { useVideoCallStore, createEventBus } from '@diagvn/video-call-core'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter'
+import type { Devices } from '@diagvn/video-call-core'
 
 const store = useVideoCallStore()
 const devices = ref<Devices>({ microphones: [], cameras: [], speakers: [] })
@@ -182,9 +182,9 @@ import {
   DiagVideoGrid,
   DiagCallControls,
   DiagBanner
-} from '@diag/video-call-ui-kit'
-import { useVideoCallStore } from '@diag/video-call-core'
-import { createAgoraRenderer } from '@diag/agora-web-adapter'
+} from '@diagvn/video-call-ui-kit'
+import { useVideoCallStore } from '@diagvn/video-call-core'
+import { createAgoraRenderer } from '@diagvn/agora-web-adapter'
 
 const store = useVideoCallStore()
 const renderer = createAgoraRenderer()
@@ -352,7 +352,7 @@ Status banners for reconnecting, poor network, recording.
 ### Core Store
 
 ```ts
-import { useVideoCallStore } from '@diag/video-call-core'
+import { useVideoCallStore } from '@diagvn/video-call-core'
 
 const store = useVideoCallStore()
 
@@ -389,7 +389,7 @@ store.destroy()
 ### Event Bus
 
 ```ts
-import { createEventBus } from '@diag/video-call-core'
+import { createEventBus } from '@diagvn/video-call-core'
 
 const eventBus = createEventBus()
 
@@ -425,7 +425,7 @@ import type {
   JoinOptions,
   DeviceSelection,
   ToastMessage
-} from '@diag/video-call-core'
+} from '@diagvn/video-call-core'
 ```
 
 ## 🎨 Theming
@@ -499,7 +499,7 @@ Built-in support for Vietnamese (`vi`) and English (`en`).
 
 ```ts
 import { createI18n } from 'vue-i18n'
-import { createVideoCallI18n } from '@diag/video-call-ui-kit'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
 
 // Default locale Vietnamese
 const i18n = createI18n(createVideoCallI18n({}, 'vi'))
@@ -595,7 +595,7 @@ This repo ships packages through GitHub Actions. Two options:
 
 Notes:
 - Publishing uses the repository `GITHUB_TOKEN` with `packages: write` permission; no extra secrets required.
-- Consumers must configure `.npmrc` with `@diag:registry=https://npm.pkg.github.com`.
+- Consumers must configure `.npmrc` with `@diagvn:registry=https://npm.pkg.github.com`.
 - The workflow runs on `ubuntu-latest` with Node 20 and pnpm, and caches dependencies for speed.
 
 ### Playground Environment

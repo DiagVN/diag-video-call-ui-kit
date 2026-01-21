@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@diag/video-call-core": "workspace:*",
-    "@diag/video-call-ui-kit": "workspace:*",
-    "@diag/agora-web-adapter": "workspace:*",
+    "@diagvn/video-call-core": "workspace:*",
+    "@diagvn/video-call-ui-kit": "workspace:*",
+    "@diagvn/agora-web-adapter": "workspace:*",
     "agora-rtc-sdk-ng": "^4.20.0",
     "pinia": "^2.1.7",
     "vue": "^3.4.0",

@@ -32,10 +32,10 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useVideoCallStore, createEventBus } from '@diag/video-call-core'
-import { DiagPreJoinPanel } from '@diag/video-call-ui-kit'
-import { createAgoraAdapter } from '@diag/agora-web-adapter'
-import type { Devices } from '@diag/video-call-core'
+import { useVideoCallStore, createEventBus } from '@diagvn/video-call-core'
+import { DiagPreJoinPanel } from '@diagvn/video-call-ui-kit'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter'
+import type { Devices } from '@diagvn/video-call-core'
 import AgoraRTC, { type ILocalVideoTrack } from 'agora-rtc-sdk-ng'
 
 const router = useRouter()

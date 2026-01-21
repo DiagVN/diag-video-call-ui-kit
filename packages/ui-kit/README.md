@@ -1,4 +1,4 @@
-# @diag/video-call-ui-kit
+# @diagvn/video-call-ui-kit
 
 Vue 3 UI components for video calls with DIAG brand styling and Vietnamese/English i18n.
 
@@ -13,13 +13,13 @@ Vue 3 UI components for video calls with DIAG brand styling and Vietnamese/Engli
 ## Installation
 
 ```bash
-pnpm add @diag/video-call-ui-kit
+pnpm add @diagvn/video-call-ui-kit
 ```
 
 ### Peer Dependencies
 
 ```bash
-pnpm add vue@^3.4.0 vue-i18n@^9.9.0 @diag/video-call-core
+pnpm add vue@^3.4.0 vue-i18n@^9.9.0 @diagvn/video-call-core
 ```
 
 ## Setup
@@ -29,10 +29,10 @@ pnpm add vue@^3.4.0 vue-i18n@^9.9.0 @diag/video-call-core
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n'
-import { createVideoCallI18n } from '@diag/video-call-ui-kit'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
 
 // Import styles
-import '@diag/video-call-ui-kit/style.css'
+import '@diagvn/video-call-ui-kit/style.css'
 
 const app = createApp(App)
 app.use(createPinia())
@@ -137,7 +137,7 @@ Status banners.
 ### Setup with Custom Messages
 
 ```ts
-import { createVideoCallI18n } from '@diag/video-call-ui-kit'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
 
 const i18n = createI18n(createVideoCallI18n({
   vi: {
@@ -154,7 +154,7 @@ const i18n = createI18n(createVideoCallI18n({
 Access raw messages:
 
 ```ts
-import { vi, en, type VideoCallMessages } from '@diag/video-call-ui-kit'
+import { vi, en, type VideoCallMessages } from '@diagvn/video-call-ui-kit'
 ```
 
 ## Theming
@@ -195,7 +195,7 @@ export {
   DiagVideoTile,
   DiagToasts,
   DiagBanner
-} from '@diag/video-call-ui-kit'
+} from '@diagvn/video-call-ui-kit'
 
 // i18n
 export {
@@ -203,7 +203,7 @@ export {
   vi,
   en,
   type VideoCallMessages
-} from '@diag/video-call-ui-kit'
+} from '@diagvn/video-call-ui-kit'
 ```
 
 ## License

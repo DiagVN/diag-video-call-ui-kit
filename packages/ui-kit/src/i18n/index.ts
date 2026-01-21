@@ -16,7 +16,7 @@ export { vi, en }
  * @example
  * ```ts
  * import { createI18n } from 'vue-i18n'
- * import { createVideoCallI18n } from '@diag/video-call-ui-kit'
+ * import { createVideoCallI18n } from '@diagvn/video-call-ui-kit'
  * 
  * const i18n = createI18n(createVideoCallI18n())
  * app.use(i18n)
