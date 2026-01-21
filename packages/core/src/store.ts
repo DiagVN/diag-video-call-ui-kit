@@ -179,6 +179,7 @@ export const useVideoCallStore = defineStore('videoCall', () => {
   // Actions
   function setAdapter(newAdapter: Actions) {
     adapter.value = newAdapter
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const maybeBus = (newAdapter as any)?.eventBus
     if (maybeBus && typeof maybeBus.emit === 'function' && typeof maybeBus.on === 'function') {
       eventBus.value = maybeBus

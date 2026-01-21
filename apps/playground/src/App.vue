@@ -15,6 +15,7 @@ const store = useVideoCallStore()
 const themeClass = ref('')
 
 // Expose theme toggle for demo
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(window as any).toggleTheme = () => {
   themeClass.value = themeClass.value === 'vc-theme-dark' ? '' : 'vc-theme-dark'
 }

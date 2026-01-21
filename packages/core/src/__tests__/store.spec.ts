@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useVideoCallStore } from '../store'
@@ -93,7 +94,7 @@ describe('Video Call Store', () => {
     store.setAdapter(adapter)
     await store.init()
     
-    const joinPromise = store.join({
+    await store.join({
       channel: 'test-channel',
       uid: 12345,
       displayName: 'Test User'

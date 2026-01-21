@@ -2,11 +2,7 @@ import AgoraRTC, {
   IAgoraRTCClient,
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
-  ILocalVideoTrack,
-  IRemoteVideoTrack,
-  IRemoteAudioTrack,
-  UID,
-  ClientRole
+  ILocalVideoTrack
 } from 'agora-rtc-sdk-ng'
 
 import type {
@@ -38,7 +34,6 @@ export class AgoraWebAdapter implements Actions {
   private callState: CallState = 'idle'
   private localUid: string | number = ''
   private participants = new Map<string, Participant>()
-  private currentChannel = ''
 
   constructor(config: AdapterConfig) {
     this.appId = config.appId
@@ -139,7 +134,10 @@ export class AgoraWebAdapter implements Actions {
     })
 
     this.client.on('network-quality', stats => {
-      const quality = Math.min(stats.uplinkNetworkQuality, stats.downlinkNetworkQuality) as NetworkQuality
+      const quality = Math.min(
+        stats.uplinkNetworkQuality,
+        stats.downlinkNetworkQuality
+      ) as NetworkQuality
       const participant = this.participants.get(String(this.localUid))
       if (participant) {
         participant.networkQuality = quality
@@ -149,7 +147,7 @@ export class AgoraWebAdapter implements Actions {
 
     this.client.on('connection-state-change', (curState, prevState, reason) => {
       this.log('Connection state changed:', prevState, '->', curState, 'reason:', reason)
-      
+
       if (curState === 'DISCONNECTED') {
         this.emitStateChange('ended')
       } else if (curState === 'RECONNECTING') {
@@ -193,12 +191,7 @@ export class AgoraWebAdapter implements Actions {
       this.currentChannel = options.channel
       this.localUid = options.uid
 
-      await this.client.join(
-        this.appId,
-        options.channel,
-        options.token || null,
-        options.uid
-      )
+      await this.client.join(this.appId, options.channel, options.token || null, options.uid)
 
       // Create and publish local tracks
       try {
@@ -239,6 +232,7 @@ export class AgoraWebAdapter implements Actions {
       this.eventBus.emit('participant-joined', localParticipant)
 
       this.emitStateChange('in_call')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.log('Join failed:', error)
       this.emitError('JOIN_FAILED', 'vc.err.joinFailed', error.message, true)
@@ -365,6 +359,7 @@ export class AgoraWebAdapter implements Actions {
       this.screenTrack.on('track-ended', () => {
         this.stopScreenShare()
       })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.code === 'PERMISSION_DENIED') {
         this.emitError('SCREEN_SHARE_DENIED', 'vc.err.permissionDenied', error.message)
@@ -400,6 +395,7 @@ export class AgoraWebAdapter implements Actions {
 
     const preset = qualityMap[quality]
     if (preset) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await this.localVideoTrack.setEncoderConfiguration(preset as any)
     }
   }
@@ -478,7 +474,11 @@ export class AgoraVideoRenderer {
   private localVideoTrack: ICameraVideoTrack | null = null
   private screenTrack: ILocalVideoTrack | null = null
 
-  constructor(client: IAgoraRTCClient | null, localVideoTrack: ICameraVideoTrack | null, screenTrack: ILocalVideoTrack | null) {
+  constructor(
+    client: IAgoraRTCClient | null,
+    localVideoTrack: ICameraVideoTrack | null,
+    screenTrack: ILocalVideoTrack | null
+  ) {
     this.client = client
     this.localVideoTrack = localVideoTrack
     this.screenTrack = screenTrack

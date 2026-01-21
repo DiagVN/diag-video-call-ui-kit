@@ -51,11 +51,11 @@ const store = useVideoCallStore()
 
 // Mock renderer for demo (replace with actual Agora renderer in production)
 const renderer = ref({
-  attachVideo: (el: HTMLElement, participantId: string, kind: 'camera' | 'screen') => {
-    console.log('Attaching video:', participantId, kind)
+  attachVideo: (_el: HTMLElement, _participantId: string, _kind: 'camera' | 'screen') => {
+    console.log('Attaching video:', _participantId, _kind)
     // In production, use AgoraVideoRenderer here
   },
-  detachVideo: (el: HTMLElement) => {
+  detachVideo: (_el: HTMLElement) => {
     console.log('Detaching video')
   }
 })
