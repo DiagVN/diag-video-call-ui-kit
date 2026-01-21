@@ -15,8 +15,7 @@
   "license": "MIT",
   "author": "DIAG",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "public"
+    "registry": "https://npm.pkg.github.com"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

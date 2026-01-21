@@ -63,6 +63,11 @@ jobs:
           cd ../ui-kit && npm version $VERSION --no-git-tag-version
           cd ../adapters/agora-web && npm version $VERSION --no-git-tag-version
 
+      - name: Authenticate to GitHub Packages
+        run: echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publish @diag/video-call-core
         run: |
           cd packages/core
