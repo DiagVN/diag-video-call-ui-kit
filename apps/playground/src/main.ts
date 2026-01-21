@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n'

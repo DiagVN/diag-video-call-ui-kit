@@ -19,7 +19,7 @@ import type { VideoRenderer } from './DiagVideoTile.vue'
 
 export interface DiagVideoGridProps {
   /** Participants to display */
-  participants: Participant[]
+  participants: readonly Participant[]
   /** Video renderer */
   renderer?: VideoRenderer
   /** Show network quality */

@@ -67,7 +67,7 @@
 import type { ToastMessage } from '@diag/video-call-core'
 
 export interface DiagToastsProps {
-  toasts: ToastMessage[]
+  toasts: readonly ToastMessage[]
 }
 
 export interface DiagToastsEmits {

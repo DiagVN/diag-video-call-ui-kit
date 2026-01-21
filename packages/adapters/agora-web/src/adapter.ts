@@ -162,7 +162,7 @@ export class AgoraWebAdapter implements Actions {
     })
 
     this.client.on('token-privilege-did-expire', () => {
-      this.eventBus.emit('token-expired')
+      this.eventBus.emit('token-expired', undefined)
     })
 
     this.client.enableAudioVolumeIndicator()
@@ -188,7 +188,6 @@ export class AgoraWebAdapter implements Actions {
       this.log('Joining channel:', options.channel)
       this.emitStateChange('connecting')
 
-      this.currentChannel = options.channel
       this.localUid = options.uid
 
       await this.client.join(this.appId, options.channel, options.token || null, options.uid)

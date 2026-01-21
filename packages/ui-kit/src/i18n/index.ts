@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { I18nOptions } from 'vue-i18n'
 import { vi, en } from './messages'
 import type { VideoCallMessages } from './messages'
@@ -59,8 +60,8 @@ export function createVideoCallI18n(
     locale: defaultLocale,
     fallbackLocale: 'en',
     messages: {
-      vi: mergeMessages(vi, customMessages?.vi),
-      en: mergeMessages(en, customMessages?.en)
+      vi: mergeMessages(vi, customMessages?.vi) as any,
+      en: mergeMessages(en, customMessages?.en) as any
     }
   }
 }

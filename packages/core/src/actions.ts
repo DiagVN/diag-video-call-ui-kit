@@ -9,6 +9,16 @@ import type {
   CallStats
 } from './types'
 
+export type {
+  JoinOptions,
+  DeviceSelection,
+  VideoQuality,
+  Devices,
+  Participant,
+  CallState,
+  CallStats
+}
+
 /**
  * Actions Interface
  * SDK-agnostic contract that adapters must implement

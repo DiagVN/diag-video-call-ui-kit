@@ -79,7 +79,7 @@ describe('Video Call Store', () => {
 
   it('transitions to prejoin after init', async () => {
     const store = useVideoCallStore()
-    const adapter = new MockAdapter(store.eventBus.value)
+    const adapter = new MockAdapter(store.eventBus)
     
     store.setAdapter(adapter)
     await store.init()
@@ -89,7 +89,7 @@ describe('Video Call Store', () => {
 
   it('transitions to in_call after join', async () => {
     const store = useVideoCallStore()
-    const adapter = new MockAdapter(store.eventBus.value)
+    const adapter = new MockAdapter(store.eventBus)
     
     store.setAdapter(adapter)
     await store.init()
@@ -175,7 +175,7 @@ describe('Video Call Store', () => {
     store.setAdapter(adapter)
     
     store.eventBus.emit('token-will-expire', { expiresIn: 30 })
-    store.eventBus.emit('token-expired')
+    store.eventBus.emit('token-expired', undefined)
     
     expect(willExpireTriggered).toBe(true)
     expect(expiredTriggered).toBe(true)

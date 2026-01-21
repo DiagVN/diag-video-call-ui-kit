@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mitt from 'mitt'
-import type { EventBus, EventMap } from './events'
+import type { EventBus } from './events'
 
 /**
  * Create a typed event bus instance
  * SSR-safe implementation using mitt
  */
 export function createEventBus(): EventBus {
-  const emitter = mitt() as mitt.Emitter<EventMap>
+  const emitter = mitt<Record<string, any>>()
 
   return {
     on: emitter.on,

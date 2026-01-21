@@ -67,7 +67,7 @@
           :class="{ 'vc-call-controls__btn--active': isScreenSharing }"
           :aria-label="$t(isScreenSharing ? 'vc.btn.shareStop' : 'vc.btn.shareStart')"
           :title="$t(isScreenSharing ? 'vc.tooltip.stopSharing' : 'vc.tooltip.shareScreen')"
-          @click="$emit(isScreenSharing ? 'stop-screen-share' : 'start-screen-share')"
+          @click="isScreenSharing ? $emit('stop-screen-share') : $emit('start-screen-share')"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <path

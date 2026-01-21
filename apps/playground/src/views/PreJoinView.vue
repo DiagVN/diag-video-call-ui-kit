@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+/// <reference types="vite/client" />
 import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -147,7 +148,8 @@ async function startPreview(camId?: string) {
     if (!previewTrack) {
       previewTrack = await AgoraRTC.createCameraVideoTrack(camId ? { cameraId: camId } : {})
     } else if (camId) {
-      await previewTrack.setDevice(camId)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (previewTrack as any).setDevice(camId)
     }
     // videoPreviewRef is already unwrapped by defineExpose, no extra .value needed
     const container = prejoinRef.value?.videoPreviewRef as HTMLDivElement | undefined
