@@ -32,7 +32,7 @@ export interface VideoCallMessages {
       idle: string
       prejoin: string
       connecting: string
-      inCall: string
+      in_call: string
       reconnecting: string
       ended: string
       error: string
@@ -179,7 +179,7 @@ export const vi: VideoCallMessages = {
       idle: 'Chưa kết nối',
       prejoin: 'Chuẩn bị tham gia',
       connecting: 'Đang kết nối...',
-      inCall: 'Trong cuộc gọi',
+      in_call: 'Trong cuộc gọi',
       reconnecting: 'Đang kết nối lại...',
       ended: 'Đã kết thúc',
       error: 'Lỗi'
@@ -317,7 +317,7 @@ export const en: VideoCallMessages = {
       idle: 'Not connected',
       prejoin: 'Ready to join',
       connecting: 'Connecting...',
-      inCall: 'In call',
+      in_call: 'In call',
       reconnecting: 'Reconnecting...',
       ended: 'Ended',
       error: 'Error'

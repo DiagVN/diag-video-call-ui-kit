@@ -463,50 +463,179 @@ export class AgoraWebAdapter implements Actions {
       this.eventBus.emit('participant-updated', participant)
     }
   }
+
+  // Getters for renderer access
+  getClient(): IAgoraRTCClient | null {
+    return this.client
+  }
+
+  getLocalVideoTrack(): ICameraVideoTrack | null {
+    return this.localVideoTrack
+  }
+
+  getScreenTrack(): ILocalVideoTrack | null {
+    return this.screenTrack
+  }
+
+  getLocalUid(): string | number {
+    return this.localUid
+  }
+
+  createRenderer(): AgoraVideoRenderer {
+    return new AgoraVideoRenderer(
+      () => this.client,
+      () => this.localVideoTrack,
+      () => this.screenTrack,
+      () => this.localUid
+    )
+  }
 }
 
 /**
  * Video Renderer for Agora tracks
  */
 export class AgoraVideoRenderer {
-  private client: IAgoraRTCClient | null = null
-  private localVideoTrack: ICameraVideoTrack | null = null
-  private screenTrack: ILocalVideoTrack | null = null
+  private getClient: () => IAgoraRTCClient | null
+  private getLocalVideoTrack: () => ICameraVideoTrack | null
+  private getScreenTrack: () => ILocalVideoTrack | null
+  private localUidGetter: () => string | number
 
   constructor(
-    client: IAgoraRTCClient | null,
-    localVideoTrack: ICameraVideoTrack | null,
-    screenTrack: ILocalVideoTrack | null
+    getClient: () => IAgoraRTCClient | null,
+    getLocalVideoTrack: () => ICameraVideoTrack | null,
+    getScreenTrack: () => ILocalVideoTrack | null,
+    localUidGetter: () => string | number
   ) {
-    this.client = client
-    this.localVideoTrack = localVideoTrack
-    this.screenTrack = screenTrack
+    this.getClient = getClient
+    this.getLocalVideoTrack = getLocalVideoTrack
+    this.getScreenTrack = getScreenTrack
+    this.localUidGetter = localUidGetter
   }
 
   attachVideo(el: HTMLElement, participantId: string, kind: 'camera' | 'screen'): void {
-    if (!this.client) return
+    const client = this.getClient()
+    const localVideoTrack = this.getLocalVideoTrack()
+    const screenTrack = this.getScreenTrack()
+    const localUid = String(this.localUidGetter())
 
-    // Find the track to play
-    const remoteUsers = this.client.remoteUsers
-    const user = remoteUsers.find(u => String(u.uid) === participantId)
+    console.log('[AgoraVideoRenderer] attachVideo called:', {
+      participantId,
+      localUid,
+      kind,
+      hasClient: !!client,
+      hasLocalVideoTrack: !!localVideoTrack,
+      hasScreenTrack: !!screenTrack,
+      isLocal: participantId === localUid
+    })
 
-    if (user && user.videoTrack) {
-      user.videoTrack.play(el, { fit: 'cover' })
-    } else if (this.localVideoTrack && kind === 'camera') {
-      this.localVideoTrack.play(el, { fit: 'cover', mirror: true })
-    } else if (this.screenTrack && kind === 'screen') {
-      this.screenTrack.play(el, { fit: 'contain' })
+    // Check if this is the local participant
+    const isLocal = participantId === localUid
+
+    // Helper to play video using native MediaStream API as fallback
+    const playWithNativeVideo = (track: ICameraVideoTrack | ILocalVideoTrack, options: { mirror?: boolean }) => {
+      try {
+        // Get the native MediaStreamTrack from Agora track
+        const mediaStreamTrack = track.getMediaStreamTrack()
+        if (!mediaStreamTrack) {
+          console.warn('[AgoraVideoRenderer] No MediaStreamTrack available')
+          return false
+        }
+
+        // Create a video element and play the stream
+        const videoElement = document.createElement('video')
+        videoElement.srcObject = new MediaStream([mediaStreamTrack])
+        videoElement.autoplay = true
+        videoElement.playsInline = true
+        videoElement.muted = true
+        videoElement.style.width = '100%'
+        videoElement.style.height = '100%'
+        videoElement.style.objectFit = 'cover'
+        if (options.mirror) {
+          videoElement.style.transform = 'scaleX(-1)'
+        }
+
+        // Clear existing content and append video
+        el.innerHTML = ''
+        el.appendChild(videoElement)
+
+        console.log('[AgoraVideoRenderer] Playing with native video element')
+        return true
+      } catch (error) {
+        console.error('[AgoraVideoRenderer] Native video playback failed:', error)
+        return false
+      }
+    }
+
+    // Helper to safely play a track with retry and fallback
+    const safePlayTrack = (track: ICameraVideoTrack | ILocalVideoTrack, options: { fit: 'cover' | 'contain', mirror?: boolean }, retryCount = 0) => {
+      const maxRetries = 3
+      const retryDelay = 500
+
+      // Check if track is enabled
+      if (!track.enabled) {
+        console.log('[AgoraVideoRenderer] Track is disabled')
+        return
+      }
+
+      console.log('[AgoraVideoRenderer] safePlayTrack attempt:', {
+        retryCount,
+        enabled: track.enabled,
+        trackId: track.getTrackId()
+      })
+
+      try {
+        // Try Agora's native play method
+        track.play(el, options)
+        console.log('[AgoraVideoRenderer] Track play() called successfully')
+      } catch (playError) {
+        console.warn('[AgoraVideoRenderer] Agora play() failed:', playError)
+        
+        // Fallback to native video element
+        if (playWithNativeVideo(track, { mirror: options.mirror })) {
+          console.log('[AgoraVideoRenderer] Fallback to native video successful')
+          return
+        }
+
+        // Retry if we have retries left
+        if (retryCount < maxRetries) {
+          console.log(`[AgoraVideoRenderer] Retrying ${retryCount + 1}/${maxRetries}...`)
+          setTimeout(() => {
+            safePlayTrack(track, options, retryCount + 1)
+          }, retryDelay)
+        } else {
+          console.error('[AgoraVideoRenderer] All play attempts failed')
+        }
+      }
+    }
+
+    try {
+      if (isLocal) {
+        // Local participant video
+        if (kind === 'camera' && localVideoTrack) {
+          console.log('[AgoraVideoRenderer] Playing local video track to element')
+          safePlayTrack(localVideoTrack, { fit: 'cover', mirror: true })
+        } else if (kind === 'screen' && screenTrack) {
+          safePlayTrack(screenTrack, { fit: 'contain' })
+        } else {
+          console.log('[AgoraVideoRenderer] No track available for local participant')
+        }
+      } else if (client) {
+        // Remote participant video
+        const remoteUsers = client.remoteUsers
+        const user = remoteUsers.find(u => String(u.uid) === participantId)
+        console.log('[AgoraVideoRenderer] Looking for remote user:', participantId, 'Found:', !!user, 'Has video:', !!user?.videoTrack)
+        if (user && user.videoTrack) {
+          user.videoTrack.play(el, { fit: 'cover' })
+        }
+      }
+    } catch (error) {
+      console.error('[AgoraVideoRenderer] Error playing video:', error)
     }
   }
 
   detachVideo(el: HTMLElement): void {
-    // Agora automatically stops playback when the track is stopped or element is removed
+    // Clear the element content - Agora will clean up when track is stopped
     el.innerHTML = ''
-  }
-
-  updateTracks(localVideoTrack: ICameraVideoTrack | null, screenTrack: ILocalVideoTrack | null) {
-    this.localVideoTrack = localVideoTrack
-    this.screenTrack = screenTrack
   }
 }
 
@@ -518,12 +647,9 @@ export function createAgoraAdapter(config: AdapterConfig): AgoraWebAdapter {
 }
 
 /**
- * Create Agora Video Renderer
+ * Create Agora Video Renderer from an adapter
+ * This is the recommended way to create a renderer
  */
-export function createAgoraRenderer(
-  client: IAgoraRTCClient | null,
-  localVideoTrack: ICameraVideoTrack | null = null,
-  screenTrack: ILocalVideoTrack | null = null
-): AgoraVideoRenderer {
-  return new AgoraVideoRenderer(client, localVideoTrack, screenTrack)
+export function createAgoraRenderer(adapter: AgoraWebAdapter): AgoraVideoRenderer {
+  return adapter.createRenderer()
 }

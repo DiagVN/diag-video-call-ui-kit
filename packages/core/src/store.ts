@@ -313,6 +313,8 @@ export const useVideoCallStore = defineStore('videoCall', () => {
     isVideoOff,
     // Event Bus (readable and accessible for test adapters)
     eventBus,
+    // Adapter (for creating renderers)
+    adapter: readonly(adapter),
     // Actions
     setAdapter,
     init,

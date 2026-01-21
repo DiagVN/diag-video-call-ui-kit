@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onUnmounted, watch, nextTick } from 'vue'
 import type { Participant } from '@diagvn/video-call-core'
 
 export interface VideoRenderer {
@@ -144,26 +144,54 @@ const networkQualityLevel = computed(() => {
   return 'veryPoor'
 })
 
+// Track if video is already attached to prevent duplicate calls
+let isAttached = false
+let retryTimeout: ReturnType<typeof setTimeout> | null = null
+
 // Attach/detach video when renderer or participant changes
 watch(
   () => [props.renderer, props.participant.id, props.participant.videoEnabled],
-  () => {
-    if (videoMountRef.value && props.renderer && props.participant.videoEnabled) {
-      props.renderer.attachVideo(videoMountRef.value, props.participant.id, props.videoKind)
+  async ([, , videoEnabled]) => {
+    // Clear any pending retry
+    if (retryTimeout) {
+      clearTimeout(retryTimeout)
+      retryTimeout = null
+    }
+    
+    // Wait for next tick to ensure DOM is ready
+    await nextTick()
+    
+    if (videoMountRef.value && props.renderer) {
+      if (videoEnabled && !isAttached) {
+        // Longer delay to ensure Agora track is fully initialized after join
+        retryTimeout = setTimeout(() => {
+          if (videoMountRef.value && props.renderer && props.participant.videoEnabled) {
+            try {
+              console.log('[DiagVideoTile] Attaching video for:', props.participant.id)
+              props.renderer.attachVideo(videoMountRef.value, props.participant.id, props.videoKind)
+              isAttached = true
+            } catch (e) {
+              console.warn('[DiagVideoTile] Failed to attach video:', e)
+            }
+          }
+        }, 500) // Increased delay for track initialization
+      } else if (!videoEnabled && isAttached) {
+        props.renderer.detachVideo(videoMountRef.value)
+        isAttached = false
+      }
     }
   },
   { immediate: true }
 )
 
-onMounted(() => {
-  if (videoMountRef.value && props.renderer && props.participant.videoEnabled) {
-    props.renderer.attachVideo(videoMountRef.value, props.participant.id, props.videoKind)
-  }
-})
-
 onUnmounted(() => {
-  if (videoMountRef.value && props.renderer) {
+  if (retryTimeout) {
+    clearTimeout(retryTimeout)
+    retryTimeout = null
+  }
+  if (videoMountRef.value && props.renderer && isAttached) {
     props.renderer.detachVideo(videoMountRef.value)
+    isAttached = false
   }
 })
 </script>
@@ -183,10 +211,18 @@ onUnmounted(() => {
   inset: 0;
 }
 
-.vc-video-tile__video video {
-  width: 100%;
-  height: 100%;
+/* Style Agora video player and native video elements */
+.vc-video-tile__video :deep(video),
+.vc-video-tile__video :deep(div[id^="agora-video-player"]) {
+  width: 100% !important;
+  height: 100% !important;
   object-fit: cover;
+}
+
+.vc-video-tile__video :deep(div[id^="agora-video-player"]) video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
 }
 
 .vc-video-tile__avatar {
