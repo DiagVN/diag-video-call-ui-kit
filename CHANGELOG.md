@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.13] - 2026-01-22
+
+### Fixed
+- Fixed "INVALID_REMOTE_USER: user is not in the channel" error when second user joins
+- Added retry mechanism with exponential backoff for remote user subscription
+- Improved remote video attachment with automatic retry when track isn't ready
+- Added user presence verification before subscribing to remote streams
+
 ## [1.0.12] - 2026-01-21
 
 ### Added
