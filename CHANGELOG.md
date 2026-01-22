@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.17] - 2026-01-22
+
+### Documentation
+- Added comprehensive guide for implementing separate Pre-Join and In-Call views
+  - Explains how Pinia store persists adapter across route navigation
+  - Two implementation options: join-before-navigate vs join-after-navigate
+  - Router configuration examples with navigation guards
+  - Tips for handling page refresh and troubleshooting common issues
+
+## [1.0.16] - 2026-01-22
+
+### Fixed
+- **Video Playback**: Changed strategy to use native `<video>` element first, with Agora's `play()` as fallback
+  - Eliminates "Cannot read properties of undefined (reading 'updateVideoTrack')" errors
+  - Native video element is more reliable and doesn't depend on Agora's internal player timing
+  - Faster video display as we don't wait for Agora's internal player to initialize
+- Reduced retry delays for faster video attachment recovery (500ms → 300ms)
+
 ## [1.0.13] - 2026-01-22
 
 ### Fixed

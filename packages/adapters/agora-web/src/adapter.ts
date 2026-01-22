@@ -590,13 +590,13 @@ export class AgoraVideoRenderer {
     // Check if this is the local participant
     const isLocal = participantId === localUid
 
-    // Helper to play video using native MediaStream API as fallback
-    const playWithNativeVideo = (track: ICameraVideoTrack | ILocalVideoTrack, options: { mirror?: boolean }) => {
+    // Helper to play video using native MediaStream API (preferred method - more reliable)
+    const playWithNativeVideo = (track: ICameraVideoTrack | ILocalVideoTrack, options: { mirror?: boolean }): boolean => {
       try {
         // Get the native MediaStreamTrack from Agora track
         const mediaStreamTrack = track.getMediaStreamTrack()
-        if (!mediaStreamTrack) {
-          console.warn('[AgoraVideoRenderer] No MediaStreamTrack available')
+        if (!mediaStreamTrack || mediaStreamTrack.readyState !== 'live') {
+          console.log('[AgoraVideoRenderer] MediaStreamTrack not ready:', mediaStreamTrack?.readyState)
           return false
         }
 
@@ -625,10 +625,10 @@ export class AgoraVideoRenderer {
       }
     }
 
-    // Helper to safely play a track with retry and fallback
-    const safePlayTrack = async (track: ICameraVideoTrack | ILocalVideoTrack, options: { fit: 'cover' | 'contain', mirror?: boolean }, retryCount = 0) => {
+    // Helper to safely play a track - uses native video first, falls back to Agora's play()
+    const safePlayTrack = (track: ICameraVideoTrack | ILocalVideoTrack, options: { fit: 'cover' | 'contain', mirror?: boolean }, retryCount = 0) => {
       const maxRetries = 3
-      const retryDelay = 500
+      const retryDelay = 300
 
       // Check if track is enabled
       if (!track.enabled) {
@@ -636,47 +636,34 @@ export class AgoraVideoRenderer {
         return
       }
 
-      // Check if track has a valid MediaStreamTrack (indicates track is ready)
-      const mediaStreamTrack = track.getMediaStreamTrack()
-      if (!mediaStreamTrack || mediaStreamTrack.readyState !== 'live') {
-        console.log('[AgoraVideoRenderer] Track not ready yet, scheduling retry')
-        if (retryCount < maxRetries) {
-          setTimeout(() => {
-            safePlayTrack(track, options, retryCount + 1)
-          }, retryDelay * (retryCount + 1))
-        }
-        return
-      }
-
       console.log('[AgoraVideoRenderer] safePlayTrack attempt:', {
         retryCount,
         enabled: track.enabled,
-        trackId: track.getTrackId(),
-        trackState: mediaStreamTrack.readyState
+        trackId: track.getTrackId()
       })
 
-      try {
-        // Try Agora's native play method
-        track.play(el, options)
-        console.log('[AgoraVideoRenderer] Track play() called successfully')
-      } catch (playError) {
-        console.warn('[AgoraVideoRenderer] Agora play() failed:', playError)
-        
-        // Fallback to native video element
-        if (playWithNativeVideo(track, { mirror: options.mirror })) {
-          console.log('[AgoraVideoRenderer] Fallback to native video successful')
-          return
-        }
+      // Try native video first - it's more reliable and doesn't depend on Agora's internal player
+      if (playWithNativeVideo(track, { mirror: options.mirror })) {
+        return // Success!
+      }
 
-        // Retry if we have retries left
-        if (retryCount < maxRetries) {
-          console.log(`[AgoraVideoRenderer] Retrying ${retryCount + 1}/${maxRetries}...`)
-          setTimeout(() => {
-            safePlayTrack(track, options, retryCount + 1)
-          }, retryDelay)
-        } else {
-          console.error('[AgoraVideoRenderer] All play attempts failed')
-        }
+      // If native failed, try Agora's play() method as fallback
+      try {
+        track.play(el, options)
+        console.log('[AgoraVideoRenderer] Agora play() successful')
+        return
+      } catch (_playError) {
+        // Agora play failed too - schedule retry
+        console.log('[AgoraVideoRenderer] Both native and Agora play failed, scheduling retry')
+      }
+
+      // Retry if we have retries left
+      if (retryCount < maxRetries) {
+        setTimeout(() => {
+          safePlayTrack(track, options, retryCount + 1)
+        }, retryDelay * (retryCount + 1))
+      } else {
+        console.warn('[AgoraVideoRenderer] All play attempts failed after', maxRetries, 'retries')
       }
     }
 
@@ -698,20 +685,18 @@ export class AgoraVideoRenderer {
         console.log('[AgoraVideoRenderer] Looking for remote user:', participantId, 'Found:', !!user, 'Has video:', !!user?.videoTrack)
         
         if (user && user.videoTrack) {
-          // Check if track is ready before playing
-          const mediaStreamTrack = user.videoTrack.getMediaStreamTrack?.()
-          if (mediaStreamTrack && mediaStreamTrack.readyState === 'live') {
+          // Try native video first for remote users too
+          if (playWithNativeVideo(user.videoTrack as unknown as ILocalVideoTrack, { mirror: false })) {
+            console.log('[AgoraVideoRenderer] Remote video playing with native element')
+          } else {
+            // Fallback to Agora's play or schedule retry
             try {
               user.videoTrack.play(el, { fit: 'cover' })
-              console.log('[AgoraVideoRenderer] Remote video playing successfully')
-            } catch (playError) {
-              console.warn('[AgoraVideoRenderer] Remote video play failed:', playError)
-              // Use native video fallback for remote too
-              playWithNativeVideo(user.videoTrack as unknown as ILocalVideoTrack, { mirror: false })
+              console.log('[AgoraVideoRenderer] Remote video playing with Agora player')
+            } catch (_playError) {
+              console.log('[AgoraVideoRenderer] Remote video not ready, scheduling retry')
+              this.scheduleRemoteVideoRetry(el, participantId, 0)
             }
-          } else {
-            console.log('[AgoraVideoRenderer] Remote video track not ready, scheduling retry')
-            this.scheduleRemoteVideoRetry(el, participantId, 0)
           }
         } else if (user && !user.videoTrack) {
           console.log('[AgoraVideoRenderer] Remote user found but no video track yet, scheduling retry')
@@ -732,7 +717,7 @@ export class AgoraVideoRenderer {
 
   private scheduleRemoteVideoRetry(el: HTMLElement, participantId: string, retryCount: number): void {
     const maxRetries = 5
-    const retryDelay = 500
+    const retryDelay = 300
 
     if (retryCount >= maxRetries) {
       console.warn('[AgoraVideoRenderer] Max retries reached for remote video:', participantId)
@@ -747,27 +732,31 @@ export class AgoraVideoRenderer {
       if (user && user.videoTrack) {
         const mediaStreamTrack = user.videoTrack.getMediaStreamTrack?.()
         if (mediaStreamTrack && mediaStreamTrack.readyState === 'live') {
+          // Try native video first
+          try {
+            const videoElement = document.createElement('video')
+            videoElement.srcObject = new MediaStream([mediaStreamTrack])
+            videoElement.autoplay = true
+            videoElement.playsInline = true
+            videoElement.muted = true
+            videoElement.style.width = '100%'
+            videoElement.style.height = '100%'
+            videoElement.style.objectFit = 'cover'
+            el.innerHTML = ''
+            el.appendChild(videoElement)
+            console.log('[AgoraVideoRenderer] Retry remote video with native element successful')
+            return
+          } catch (_nativeError) {
+            console.log('[AgoraVideoRenderer] Native element failed, trying Agora play')
+          }
+          
+          // Fallback to Agora's play
           try {
             user.videoTrack.play(el, { fit: 'cover' })
-            console.log('[AgoraVideoRenderer] Retry remote video play successful')
-          } catch (playError) {
-            console.warn('[AgoraVideoRenderer] Retry remote video play failed:', playError)
-            // Use native video fallback
-            try {
-              const videoElement = document.createElement('video')
-              videoElement.srcObject = new MediaStream([mediaStreamTrack])
-              videoElement.autoplay = true
-              videoElement.playsInline = true
-              videoElement.muted = true
-              videoElement.style.width = '100%'
-              videoElement.style.height = '100%'
-              videoElement.style.objectFit = 'cover'
-              el.innerHTML = ''
-              el.appendChild(videoElement)
-              console.log('[AgoraVideoRenderer] Remote video native fallback successful')
-            } catch (fallbackError) {
-              console.error('[AgoraVideoRenderer] Remote video native fallback failed:', fallbackError)
-            }
+            console.log('[AgoraVideoRenderer] Retry remote video with Agora player successful')
+          } catch (_playError) {
+            // Both failed, retry again
+            this.scheduleRemoteVideoRetry(el, participantId, retryCount + 1)
           }
         } else {
           // Track not ready, retry again

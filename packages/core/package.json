@@ -1,6 +1,6 @@
 {
   "name": "@diagvn/video-call-core",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "type": "module",
   "description": "Headless core for DIAG Video Call UI Kit",
   "repository": {
