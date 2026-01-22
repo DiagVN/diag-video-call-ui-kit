@@ -97,30 +97,50 @@ export class AgoraWebAdapter implements Actions {
       
       while (!subscribed && retryCount < maxRetries) {
         try {
+          // Verify client is still connected
+          if (!this.client || this.client.connectionState !== 'CONNECTED') {
+            this.log('Client not connected, skipping subscribe')
+            return
+          }
+          
           // Verify user is still in channel before subscribing
-          const remoteUsers = this.client!.remoteUsers
+          const remoteUsers = this.client.remoteUsers
           const isUserInChannel = remoteUsers.some(u => u.uid === user.uid)
           
           if (!isUserInChannel) {
-            this.log('User not yet in remoteUsers list, waiting...', user.uid)
-            await new Promise(resolve => setTimeout(resolve, 200 * (retryCount + 1)))
+            this.log('User not in remoteUsers list, they may have left:', user.uid)
+            // Check if user has left already
+            if (retryCount > 0) {
+              this.log('User left before subscribe completed, aborting')
+              return
+            }
+            await new Promise(resolve => setTimeout(resolve, 300 * (retryCount + 1)))
             retryCount++
             continue
           }
           
-          await this.client!.subscribe(user, mediaType)
+          await this.client.subscribe(user, mediaType)
           subscribed = true
           this.log('Successfully subscribed to:', user.uid, mediaType)
-        } catch (error) {
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          const errorString = String(error)
+          
+          // Check if it's a "user not in channel" error - don't retry, user has left
+          if (errorString.includes('not in the channel') || errorString.includes('USER_NOT_FOUND')) {
+            this.log('User not in channel, aborting subscribe:', user.uid)
+            return
+          }
+          
           retryCount++
-          this.log(`Subscribe attempt ${retryCount} failed for ${user.uid}:`, error)
+          this.log(`Subscribe attempt ${retryCount} failed for ${user.uid}:`, errorMessage)
           
           if (retryCount < maxRetries) {
             // Wait before retry with exponential backoff
             await new Promise(resolve => setTimeout(resolve, 300 * retryCount))
           } else {
             this.log('Max retries reached for subscribing to:', user.uid, mediaType)
-            this.emitError('SUBSCRIBE_FAILED', 'vc.err.subscribeFailed', String(error))
+            this.emitError('SUBSCRIBE_FAILED', 'vc.err.subscribeFailed', errorMessage)
             return
           }
         }
@@ -606,7 +626,7 @@ export class AgoraVideoRenderer {
     }
 
     // Helper to safely play a track with retry and fallback
-    const safePlayTrack = (track: ICameraVideoTrack | ILocalVideoTrack, options: { fit: 'cover' | 'contain', mirror?: boolean }, retryCount = 0) => {
+    const safePlayTrack = async (track: ICameraVideoTrack | ILocalVideoTrack, options: { fit: 'cover' | 'contain', mirror?: boolean }, retryCount = 0) => {
       const maxRetries = 3
       const retryDelay = 500
 
@@ -616,10 +636,23 @@ export class AgoraVideoRenderer {
         return
       }
 
+      // Check if track has a valid MediaStreamTrack (indicates track is ready)
+      const mediaStreamTrack = track.getMediaStreamTrack()
+      if (!mediaStreamTrack || mediaStreamTrack.readyState !== 'live') {
+        console.log('[AgoraVideoRenderer] Track not ready yet, scheduling retry')
+        if (retryCount < maxRetries) {
+          setTimeout(() => {
+            safePlayTrack(track, options, retryCount + 1)
+          }, retryDelay * (retryCount + 1))
+        }
+        return
+      }
+
       console.log('[AgoraVideoRenderer] safePlayTrack attempt:', {
         retryCount,
         enabled: track.enabled,
-        trackId: track.getTrackId()
+        trackId: track.getTrackId(),
+        trackState: mediaStreamTrack.readyState
       })
 
       try {
@@ -665,37 +698,26 @@ export class AgoraVideoRenderer {
         console.log('[AgoraVideoRenderer] Looking for remote user:', participantId, 'Found:', !!user, 'Has video:', !!user?.videoTrack)
         
         if (user && user.videoTrack) {
-          try {
-            user.videoTrack.play(el, { fit: 'cover' })
-          } catch (playError) {
-            console.warn('[AgoraVideoRenderer] Remote video play failed, will retry:', playError)
-            // Schedule retry - the track might not be ready yet
-            setTimeout(() => {
-              const retryUser = client.remoteUsers.find(u => String(u.uid) === participantId)
-              if (retryUser && retryUser.videoTrack) {
-                try {
-                  retryUser.videoTrack.play(el, { fit: 'cover' })
-                  console.log('[AgoraVideoRenderer] Retry remote video play successful')
-                } catch (retryError) {
-                  console.error('[AgoraVideoRenderer] Retry remote video play failed:', retryError)
-                }
-              }
-            }, 500)
+          // Check if track is ready before playing
+          const mediaStreamTrack = user.videoTrack.getMediaStreamTrack?.()
+          if (mediaStreamTrack && mediaStreamTrack.readyState === 'live') {
+            try {
+              user.videoTrack.play(el, { fit: 'cover' })
+              console.log('[AgoraVideoRenderer] Remote video playing successfully')
+            } catch (playError) {
+              console.warn('[AgoraVideoRenderer] Remote video play failed:', playError)
+              // Use native video fallback for remote too
+              playWithNativeVideo(user.videoTrack as unknown as ILocalVideoTrack, { mirror: false })
+            }
+          } else {
+            console.log('[AgoraVideoRenderer] Remote video track not ready, scheduling retry')
+            this.scheduleRemoteVideoRetry(el, participantId, 0)
           }
         } else if (user && !user.videoTrack) {
           console.log('[AgoraVideoRenderer] Remote user found but no video track yet, scheduling retry')
-          // Schedule retry - subscription might not be complete
-          setTimeout(() => {
-            const retryUser = client.remoteUsers.find(u => String(u.uid) === participantId)
-            if (retryUser && retryUser.videoTrack) {
-              try {
-                retryUser.videoTrack.play(el, { fit: 'cover' })
-                console.log('[AgoraVideoRenderer] Delayed remote video play successful')
-              } catch (retryError) {
-                console.error('[AgoraVideoRenderer] Delayed remote video play failed:', retryError)
-              }
-            }
-          }, 500)
+          this.scheduleRemoteVideoRetry(el, participantId, 0)
+        } else {
+          console.log('[AgoraVideoRenderer] Remote user not found:', participantId)
         }
       }
     } catch (error) {
@@ -706,6 +728,56 @@ export class AgoraVideoRenderer {
   detachVideo(el: HTMLElement): void {
     // Clear the element content - Agora will clean up when track is stopped
     el.innerHTML = ''
+  }
+
+  private scheduleRemoteVideoRetry(el: HTMLElement, participantId: string, retryCount: number): void {
+    const maxRetries = 5
+    const retryDelay = 500
+
+    if (retryCount >= maxRetries) {
+      console.warn('[AgoraVideoRenderer] Max retries reached for remote video:', participantId)
+      return
+    }
+
+    setTimeout(() => {
+      const client = this.getClient()
+      if (!client) return
+
+      const user = client.remoteUsers.find(u => String(u.uid) === participantId)
+      if (user && user.videoTrack) {
+        const mediaStreamTrack = user.videoTrack.getMediaStreamTrack?.()
+        if (mediaStreamTrack && mediaStreamTrack.readyState === 'live') {
+          try {
+            user.videoTrack.play(el, { fit: 'cover' })
+            console.log('[AgoraVideoRenderer] Retry remote video play successful')
+          } catch (playError) {
+            console.warn('[AgoraVideoRenderer] Retry remote video play failed:', playError)
+            // Use native video fallback
+            try {
+              const videoElement = document.createElement('video')
+              videoElement.srcObject = new MediaStream([mediaStreamTrack])
+              videoElement.autoplay = true
+              videoElement.playsInline = true
+              videoElement.muted = true
+              videoElement.style.width = '100%'
+              videoElement.style.height = '100%'
+              videoElement.style.objectFit = 'cover'
+              el.innerHTML = ''
+              el.appendChild(videoElement)
+              console.log('[AgoraVideoRenderer] Remote video native fallback successful')
+            } catch (fallbackError) {
+              console.error('[AgoraVideoRenderer] Remote video native fallback failed:', fallbackError)
+            }
+          }
+        } else {
+          // Track not ready, retry again
+          this.scheduleRemoteVideoRetry(el, participantId, retryCount + 1)
+        }
+      } else {
+        // No track yet, retry
+        this.scheduleRemoteVideoRetry(el, participantId, retryCount + 1)
+      }
+    }, retryDelay * (retryCount + 1))
   }
 }
 
