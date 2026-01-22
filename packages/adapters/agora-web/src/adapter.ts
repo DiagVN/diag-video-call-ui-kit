@@ -89,12 +89,51 @@ export class AgoraWebAdapter implements Actions {
 
     this.client.on('user-published', async (user, mediaType) => {
       this.log('User published:', user.uid, mediaType)
-      await this.client!.subscribe(user, mediaType)
+      
+      // Retry subscribe with exponential backoff
+      const maxRetries = 3
+      let retryCount = 0
+      let subscribed = false
+      
+      while (!subscribed && retryCount < maxRetries) {
+        try {
+          // Verify user is still in channel before subscribing
+          const remoteUsers = this.client!.remoteUsers
+          const isUserInChannel = remoteUsers.some(u => u.uid === user.uid)
+          
+          if (!isUserInChannel) {
+            this.log('User not yet in remoteUsers list, waiting...', user.uid)
+            await new Promise(resolve => setTimeout(resolve, 200 * (retryCount + 1)))
+            retryCount++
+            continue
+          }
+          
+          await this.client!.subscribe(user, mediaType)
+          subscribed = true
+          this.log('Successfully subscribed to:', user.uid, mediaType)
+        } catch (error) {
+          retryCount++
+          this.log(`Subscribe attempt ${retryCount} failed for ${user.uid}:`, error)
+          
+          if (retryCount < maxRetries) {
+            // Wait before retry with exponential backoff
+            await new Promise(resolve => setTimeout(resolve, 300 * retryCount))
+          } else {
+            this.log('Max retries reached for subscribing to:', user.uid, mediaType)
+            this.emitError('SUBSCRIBE_FAILED', 'vc.err.subscribeFailed', String(error))
+            return
+          }
+        }
+      }
 
       const participant = this.participants.get(String(user.uid))
       if (participant) {
         if (mediaType === 'audio') {
           participant.audioEnabled = true
+          // Play audio track immediately after successful subscription
+          if (user.audioTrack) {
+            user.audioTrack.play()
+          }
         } else if (mediaType === 'video') {
           participant.videoEnabled = true
         }
@@ -624,8 +663,39 @@ export class AgoraVideoRenderer {
         const remoteUsers = client.remoteUsers
         const user = remoteUsers.find(u => String(u.uid) === participantId)
         console.log('[AgoraVideoRenderer] Looking for remote user:', participantId, 'Found:', !!user, 'Has video:', !!user?.videoTrack)
+        
         if (user && user.videoTrack) {
-          user.videoTrack.play(el, { fit: 'cover' })
+          try {
+            user.videoTrack.play(el, { fit: 'cover' })
+          } catch (playError) {
+            console.warn('[AgoraVideoRenderer] Remote video play failed, will retry:', playError)
+            // Schedule retry - the track might not be ready yet
+            setTimeout(() => {
+              const retryUser = client.remoteUsers.find(u => String(u.uid) === participantId)
+              if (retryUser && retryUser.videoTrack) {
+                try {
+                  retryUser.videoTrack.play(el, { fit: 'cover' })
+                  console.log('[AgoraVideoRenderer] Retry remote video play successful')
+                } catch (retryError) {
+                  console.error('[AgoraVideoRenderer] Retry remote video play failed:', retryError)
+                }
+              }
+            }, 500)
+          }
+        } else if (user && !user.videoTrack) {
+          console.log('[AgoraVideoRenderer] Remote user found but no video track yet, scheduling retry')
+          // Schedule retry - subscription might not be complete
+          setTimeout(() => {
+            const retryUser = client.remoteUsers.find(u => String(u.uid) === participantId)
+            if (retryUser && retryUser.videoTrack) {
+              try {
+                retryUser.videoTrack.play(el, { fit: 'cover' })
+                console.log('[AgoraVideoRenderer] Delayed remote video play successful')
+              } catch (retryError) {
+                console.error('[AgoraVideoRenderer] Delayed remote video play failed:', retryError)
+              }
+            }
+          }, 500)
         }
       }
     } catch (error) {
