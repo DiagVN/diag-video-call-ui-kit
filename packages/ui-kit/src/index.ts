@@ -9,6 +9,7 @@ export { default as DiagVideoGrid } from './components/DiagVideoGrid.vue'
 export { default as DiagVideoTile } from './components/DiagVideoTile.vue'
 export { default as DiagToasts } from './components/DiagToasts.vue'
 export { default as DiagBanner } from './components/DiagBanner.vue'
+export { default as DiagTranscript } from './components/DiagTranscript.vue'
 
 // Component Types
 export type { DiagCallShellProps } from './components/DiagCallShell.vue'
@@ -18,6 +19,7 @@ export type { DiagVideoGridProps } from './components/DiagVideoGrid.vue'
 export type { DiagVideoTileProps, VideoRenderer } from './components/DiagVideoTile.vue'
 export type { DiagToastsProps, DiagToastsEmits } from './components/DiagToasts.vue'
 export type { DiagBannerProps, DiagBannerEmits } from './components/DiagBanner.vue'
+export type { DiagTranscriptProps, DiagTranscriptEmits } from './components/DiagTranscript.vue'
 
 // i18n
 export { createVideoCallI18n, vi, en } from './i18n'

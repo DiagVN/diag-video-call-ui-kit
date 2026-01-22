@@ -158,3 +158,24 @@ export interface ToastMessage {
   /** Optional additional data */
   data?: Record<string, unknown>
 }
+
+/**
+ * Transcript Entry
+ */
+export interface TranscriptEntry {
+  /** Unique entry ID */
+  id: string
+  /** Participant ID who spoke */
+  participantId: string
+  /** Participant display name */
+  participantName: string
+  /** Transcribed text */
+  text: string
+  /** Is this a final result or interim */
+  isFinal: boolean
+  /** Timestamp */
+  timestamp: number
+  /** Language code */
+  language?: string
+}
+

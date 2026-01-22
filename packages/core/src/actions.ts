@@ -113,6 +113,23 @@ export interface Actions {
    * Cleanup and destroy adapter
    */
   destroy(): Promise<void>
+
+  /**
+   * Start real-time transcription (optional - adapter may not support)
+   * @param language - Language code (e.g., 'en-US', 'vi-VN')
+   * @returns true if transcription started, false if not supported
+   */
+  startTranscript?(language: string): Promise<boolean>
+
+  /**
+   * Stop real-time transcription (optional)
+   */
+  stopTranscript?(): Promise<void>
+
+  /**
+   * Check if transcription is supported by this adapter
+   */
+  isTranscriptSupported?(): boolean
 }
 
 /**

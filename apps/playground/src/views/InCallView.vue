@@ -19,16 +19,28 @@
       :show-network-quality="true"
     />
 
+    <!-- Transcript Panel -->
+    <DiagTranscript
+      v-if="showTranscript"
+      class="transcript-panel"
+      :entries="store.transcriptEntries"
+      :is-live="store.isTranscriptEnabled"
+      @close="showTranscript = false"
+      @clear="store.clearTranscript"
+    />
+
     <template #bottombar>
       <DiagCallControls
         :is-muted="store.isMuted"
         :is-video-off="store.isVideoOff"
         :is-screen-sharing="store.isScreenSharing"
+        :is-transcript-enabled="store.isTranscriptEnabled"
         :participant-count="store.participantCount"
         @toggle-mic="store.toggleMic"
         @toggle-cam="handleToggleCam"
         @start-screen-share="store.startScreenShare"
         @stop-screen-share="store.stopScreenShare"
+        @toggle-transcript="handleToggleTranscript"
         @toggle-more="showMoreMenu = !showMoreMenu"
         @leave="handleLeave"
       />
@@ -55,14 +67,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVideoCallStore } from '@diagvn/video-call-core'
 import {
   DiagCallShell,
   DiagVideoGrid,
   DiagCallControls,
-  DiagBanner
+  DiagBanner,
+  DiagTranscript
 } from '@diagvn/video-call-ui-kit'
 import { AgoraWebAdapter } from '@diagvn/agora-web-adapter'
 
@@ -70,6 +83,7 @@ const router = useRouter()
 const store = useVideoCallStore()
 
 const showMoreMenu = ref(false)
+const showTranscript = ref(false)
 
 // Create renderer from adapter if available
 const renderer = computed(() => {
@@ -93,11 +107,29 @@ const localParticipant = computed(() =>
   store.participants.find(p => p.isLocal)
 )
 
+// Show transcript panel when transcript is enabled
+watch(() => store.isTranscriptEnabled, (enabled) => {
+  if (enabled) {
+    showTranscript.value = true
+  }
+})
+
 async function handleToggleCam() {
   await store.toggleCam()
 }
 
+function handleToggleTranscript() {
+  store.toggleTranscript('en-US')
+  if (!store.isTranscriptEnabled) {
+    showTranscript.value = true
+  }
+}
+
 async function handleLeave() {
+  // Stop transcript before leaving
+  if (store.isTranscriptEnabled) {
+    store.stopTranscript()
+  }
   await store.leave()
   router.push('/')
 }
@@ -119,6 +151,14 @@ function handleFullscreen() {
 </script>
 
 <style scoped>
+.transcript-panel {
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+  z-index: 100;
+  width: 350px;
+}
+
 .more-menu-overlay {
   position: fixed;
   inset: 0;

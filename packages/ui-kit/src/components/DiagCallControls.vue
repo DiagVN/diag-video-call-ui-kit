@@ -76,6 +76,21 @@
           </svg>
         </button>
 
+        <!-- Transcript -->
+        <button
+          class="vc-btn vc-btn-icon vc-call-controls__btn"
+          :class="{ 'vc-call-controls__btn--active-primary': isTranscriptEnabled }"
+          :aria-label="$t(isTranscriptEnabled ? 'vc.btn.transcriptStop' : 'vc.btn.transcriptStart')"
+          :title="$t(isTranscriptEnabled ? 'vc.tooltip.stopTranscript' : 'vc.tooltip.startTranscript')"
+          @click="$emit('toggle-transcript')"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 12h4v2H4v-2zm10 6H4v-2h10v2zm6 0h-4v-2h4v2zm0-4H10v-2h10v2z"
+            />
+          </svg>
+        </button>
+
         <!-- More Options -->
         <button
           class="vc-btn vc-btn-icon vc-call-controls__btn"
@@ -135,6 +150,8 @@ export interface DiagCallControlsProps {
   isVideoOff?: boolean
   /** Is screen sharing */
   isScreenSharing?: boolean
+  /** Is transcript enabled */
+  isTranscriptEnabled?: boolean
   /** Show switch camera button */
   showSwitchCamera?: boolean
   /** Number of participants */
@@ -147,6 +164,7 @@ export interface DiagCallControlsEmits {
   (event: 'switch-camera'): void
   (event: 'start-screen-share'): void
   (event: 'stop-screen-share'): void
+  (event: 'toggle-transcript'): void
   (event: 'toggle-participants'): void
   (event: 'toggle-more'): void
   (event: 'leave'): void
@@ -156,6 +174,7 @@ withDefaults(defineProps<DiagCallControlsProps>(), {
   isMuted: false,
   isVideoOff: false,
   isScreenSharing: false,
+  isTranscriptEnabled: false,
   showSwitchCamera: false,
   participantCount: 0
 })
@@ -206,6 +225,12 @@ defineEmits<DiagCallControlsEmits>()
   background: var(--vc-danger);
   color: var(--vc-danger-fg);
   border-color: var(--vc-danger);
+}
+
+.vc-call-controls__btn--active-primary {
+  background: var(--vc-primary);
+  color: var(--vc-primary-fg);
+  border-color: var(--vc-primary);
 }
 
 .vc-call-controls__leave-btn {

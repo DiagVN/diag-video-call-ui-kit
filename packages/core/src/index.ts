@@ -11,7 +11,8 @@ export type {
   JoinOptions,
   DeviceSelection,
   CallStats,
-  ToastMessage
+  ToastMessage,
+  TranscriptEntry
 } from './types'
 
 // Events

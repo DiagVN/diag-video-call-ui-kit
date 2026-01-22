@@ -10,10 +10,14 @@ import type {
   CallStats,
   JoinOptions,
   DeviceSelection,
-  VideoQuality
+  VideoQuality,
+  TranscriptEntry
 } from './types'
 import type { EventBus } from './events'
 import { createEventBus } from './eventBus'
+
+// Import speech recognition types
+import './speech-recognition.d'
 
 /**
  * Video Call Store
@@ -35,6 +39,13 @@ export const useVideoCallStore = defineStore('videoCall', () => {
   const isScreenSharing = ref(false)
   const isAudioOnly = ref(false)
   const currentQuality = ref<VideoQuality>('auto')
+
+  // Transcript State
+  const isTranscriptEnabled = ref(false)
+  const transcriptEntries = ref<TranscriptEntry[]>([])
+  const transcriptLanguage = ref('en-US')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let speechRecognition: any = null
 
   // Adapter and Event Bus
   const adapter = ref<Actions | null>(null)
@@ -174,6 +185,53 @@ export const useVideoCallStore = defineStore('videoCall', () => {
         participant.networkQuality = quality
       }
     })
+
+    // Transcript events
+    bus.on('transcript-entry', entry => {
+      // Update existing interim entry or add new one
+      if (!entry.isFinal) {
+        // Find and update existing interim entry from same participant
+        const existingIndex = transcriptEntries.value.findIndex(
+          e => e.participantId === entry.participantId && !e.isFinal
+        )
+        if (existingIndex !== -1) {
+          transcriptEntries.value[existingIndex] = entry
+        } else {
+          transcriptEntries.value.push(entry)
+        }
+      } else {
+        // For final entries, remove interim and add final
+        const interimIndex = transcriptEntries.value.findIndex(
+          e => e.participantId === entry.participantId && !e.isFinal
+        )
+        if (interimIndex !== -1) {
+          transcriptEntries.value.splice(interimIndex, 1)
+        }
+        transcriptEntries.value.push(entry)
+        // Keep only last 100 entries
+        if (transcriptEntries.value.length > 100) {
+          transcriptEntries.value = transcriptEntries.value.slice(-100)
+        }
+      }
+    })
+
+    bus.on('transcript-started', ({ language }) => {
+      isTranscriptEnabled.value = true
+      transcriptLanguage.value = language
+    })
+
+    bus.on('transcript-stopped', () => {
+      isTranscriptEnabled.value = false
+    })
+
+    bus.on('transcript-error', ({ code, message }) => {
+      errors.value.push({
+        code: `TRANSCRIPT_${code}`,
+        messageKey: 'vc.err.transcriptError',
+        detail: message,
+        recoverable: true
+      })
+    })
   }
 
   // Actions
@@ -270,6 +328,165 @@ export const useVideoCallStore = defineStore('videoCall', () => {
     isAudioOnly.value = audioOnly
   }
 
+  /**
+   * Start speech-to-text transcription
+   * First tries adapter's native transcription, falls back to Web Speech API
+   */
+  async function startTranscript(language: string = 'en-US') {
+    // First, try adapter's native transcription if available
+    if (adapter.value?.startTranscript) {
+      try {
+        const started = await adapter.value.startTranscript(language)
+        if (started) {
+          return // Adapter handles transcription
+        }
+      } catch (error) {
+        console.warn('[VideoCallStore] Adapter transcription failed, falling back to Web Speech API:', error)
+      }
+    }
+
+    // Fall back to Web Speech API (local user only)
+    startLocalTranscript(language)
+  }
+
+  /**
+   * Start local transcription using Web Speech API
+   * Note: Only transcribes the local user's speech
+   */
+  function startLocalTranscript(language: string = 'en-US') {
+    // Check for browser support
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognitionAPI) {
+      eventBus.value.emit('transcript-error', {
+        code: 'NOT_SUPPORTED',
+        message: 'Speech recognition is not supported in this browser'
+      })
+      return
+    }
+
+    // Stop existing recognition if any
+    if (speechRecognition) {
+      speechRecognition.stop()
+    }
+
+    speechRecognition = new SpeechRecognitionAPI()
+    speechRecognition.continuous = true
+    speechRecognition.interimResults = true
+    speechRecognition.lang = language
+
+    speechRecognition.onstart = () => {
+      eventBus.value.emit('transcript-started', { language })
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    speechRecognition.onresult = (event: any) => {
+      const localUser = localParticipant.value
+      if (!localUser) return
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i]
+        const transcript = result[0].transcript.trim()
+        
+        if (transcript) {
+          const entry: TranscriptEntry = {
+            id: `${localUser.id}-${Date.now()}-${i}`,
+            participantId: localUser.id,
+            participantName: localUser.displayName,
+            text: transcript,
+            isFinal: result.isFinal,
+            timestamp: Date.now(),
+            language
+          }
+          eventBus.value.emit('transcript-entry', entry)
+        }
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    speechRecognition.onerror = (event: any) => {
+      // Don't emit error for 'no-speech' as it's common
+      if (event.error !== 'no-speech') {
+        eventBus.value.emit('transcript-error', {
+          code: event.error.toUpperCase(),
+          message: `Speech recognition error: ${event.error}`
+        })
+      }
+    }
+
+    speechRecognition.onend = () => {
+      // Restart if still enabled (handles automatic stops)
+      if (isTranscriptEnabled.value && speechRecognition) {
+        try {
+          speechRecognition.start()
+        } catch {
+          // Ignore errors when trying to restart
+        }
+      } else {
+        eventBus.value.emit('transcript-stopped', undefined)
+      }
+    }
+
+    try {
+      speechRecognition.start()
+    } catch (error) {
+      eventBus.value.emit('transcript-error', {
+        code: 'START_FAILED',
+        message: String(error)
+      })
+    }
+  }
+
+  /**
+   * Stop speech-to-text transcription
+   */
+  async function stopTranscript() {
+    // Try adapter's stop first
+    if (adapter.value?.stopTranscript) {
+      try {
+        await adapter.value.stopTranscript()
+      } catch {
+        // Ignore
+      }
+    }
+
+    // Also stop local Web Speech API if running
+    if (speechRecognition) {
+      isTranscriptEnabled.value = false
+      speechRecognition.stop()
+      speechRecognition = null
+    }
+  }
+
+  /**
+   * Toggle transcript on/off
+   */
+  async function toggleTranscript(language: string = 'en-US') {
+    if (isTranscriptEnabled.value) {
+      await stopTranscript()
+    } else {
+      await startTranscript(language)
+    }
+  }
+
+  /**
+   * Check if transcription is supported
+   */
+  function isTranscriptSupported(): boolean {
+    // Check adapter support first
+    if (adapter.value?.isTranscriptSupported?.()) {
+      return true
+    }
+    // Fall back to Web Speech API check
+    return !!(window.SpeechRecognition || window.webkitSpeechRecognition)
+  }
+
+  /**
+   * Clear transcript entries
+   */
+  function clearTranscript() {
+    transcriptEntries.value = []
+  }
+
   function dismissToast(id: string) {
     const idx = toasts.value.findIndex(t => t.id === id)
     if (idx !== -1) toasts.value.splice(idx, 1)
@@ -305,6 +522,10 @@ export const useVideoCallStore = defineStore('videoCall', () => {
     isScreenSharing: readonly(isScreenSharing),
     isAudioOnly: readonly(isAudioOnly),
     currentQuality: readonly(currentQuality),
+    // Transcript State
+    isTranscriptEnabled: readonly(isTranscriptEnabled),
+    transcriptEntries: readonly(transcriptEntries),
+    transcriptLanguage: readonly(transcriptLanguage),
     // Computed
     isInCall,
     isConnecting,
@@ -330,6 +551,12 @@ export const useVideoCallStore = defineStore('videoCall', () => {
     refreshToken,
     setQuality,
     setAudioOnly,
+    // Transcript Actions
+    startTranscript,
+    stopTranscript,
+    toggleTranscript,
+    clearTranscript,
+    isTranscriptSupported,
     dismissToast,
     dismissError,
     destroy

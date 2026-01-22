@@ -15,6 +15,8 @@ export interface VideoCallMessages {
       cameraOff: string
       shareStart: string
       shareStop: string
+      transcriptStart: string
+      transcriptStop: string
       switchCamera: string
       devices: string
       participants: string
@@ -50,6 +52,8 @@ export interface VideoCallMessages {
       networkLost: string
       networkLostDetail: string
       initFailed: string
+      transcriptError: string
+      transcriptNotSupported: string
       genericError: string
     }
     // Banners
@@ -84,6 +88,9 @@ export interface VideoCallMessages {
       joinMuted: string
       joinVideoOff: string
       audioOnly: string
+      transcript: string
+      live: string
+      noTranscript: string
     }
     // Tooltips
     tooltip: {
@@ -98,6 +105,12 @@ export interface VideoCallMessages {
       openSettings: string
       leaveCall: string
       toggleFullscreen: string
+      startTranscript: string
+      stopTranscript: string
+      clearTranscript: string
+      expandTranscript: string
+      minimizeTranscript: string
+      closeTranscript: string
     }
     // Device Permission States
     permission: {
@@ -164,6 +177,8 @@ export const vi: VideoCallMessages = {
       cameraOff: 'Tắt camera',
       shareStart: 'Chia sẻ màn hình',
       shareStop: 'Dừng chia sẻ',
+      transcriptStart: 'Bật phụ đề',
+      transcriptStop: 'Tắt phụ đề',
       switchCamera: 'Chuyển camera',
       devices: 'Thiết bị',
       participants: 'Người tham gia',
@@ -198,6 +213,8 @@ export const vi: VideoCallMessages = {
       networkLost: 'Mất kết nối mạng',
       networkLostDetail: 'Không thể kết nối với máy chủ. Vui lòng kiểm tra kết nối internet.',
       initFailed: 'Khởi tạo thất bại',
+      transcriptError: 'Lỗi nhận dạng giọng nói',
+      transcriptNotSupported: 'Trình duyệt không hỗ trợ nhận dạng giọng nói',
       genericError: 'Đã xảy ra lỗi'
     },
     banner: {
@@ -229,7 +246,10 @@ export const vi: VideoCallMessages = {
       role: 'Vai trò',
       joinMuted: 'Tắt mic khi tham gia',
       joinVideoOff: 'Tắt camera khi tham gia',
-      audioOnly: 'Chỉ âm thanh'
+      audioOnly: 'Chỉ âm thanh',
+      transcript: 'Phụ đề',
+      live: 'Trực tiếp',
+      noTranscript: 'Chưa có nội dung phụ đề'
     },
     tooltip: {
       toggleMic: 'Bật/Tắt microphone',
@@ -242,7 +262,13 @@ export const vi: VideoCallMessages = {
       openChat: 'Mở trò chuyện',
       openSettings: 'Cài đặt',
       leaveCall: 'Rời khỏi cuộc gọi',
-      toggleFullscreen: 'Chế độ toàn màn hình'
+      toggleFullscreen: 'Chế độ toàn màn hình',
+      startTranscript: 'Bật phụ đề trực tiếp',
+      stopTranscript: 'Tắt phụ đề',
+      clearTranscript: 'Xóa phụ đề',
+      expandTranscript: 'Mở rộng phụ đề',
+      minimizeTranscript: 'Thu nhỏ phụ đề',
+      closeTranscript: 'Đóng phụ đề'
     },
     permission: {
       blocked: 'Quyền truy cập bị chặn',
@@ -303,6 +329,8 @@ export const en: VideoCallMessages = {
       cameraOff: 'Turn off camera',
       shareStart: 'Share screen',
       shareStop: 'Stop sharing',
+      transcriptStart: 'Start transcript',
+      transcriptStop: 'Stop transcript',
       switchCamera: 'Switch camera',
       devices: 'Devices',
       participants: 'Participants',
@@ -336,6 +364,8 @@ export const en: VideoCallMessages = {
       networkLost: 'Network connection lost',
       networkLostDetail: 'Unable to connect to server. Please check your internet connection.',
       initFailed: 'Initialization failed',
+      transcriptError: 'Speech recognition error',
+      transcriptNotSupported: 'Speech recognition is not supported in this browser',
       genericError: 'An error occurred'
     },
     banner: {
@@ -367,7 +397,10 @@ export const en: VideoCallMessages = {
       role: 'Role',
       joinMuted: 'Join muted',
       joinVideoOff: 'Join with video off',
-      audioOnly: 'Audio only'
+      audioOnly: 'Audio only',
+      transcript: 'Transcript',
+      live: 'Live',
+      noTranscript: 'No transcript yet'
     },
     tooltip: {
       toggleMic: 'Toggle microphone',
@@ -380,7 +413,13 @@ export const en: VideoCallMessages = {
       openChat: 'Open chat',
       openSettings: 'Settings',
       leaveCall: 'Leave call',
-      toggleFullscreen: 'Toggle fullscreen'
+      toggleFullscreen: 'Toggle fullscreen',
+      startTranscript: 'Start live transcript',
+      stopTranscript: 'Stop transcript',
+      clearTranscript: 'Clear transcript',
+      expandTranscript: 'Expand transcript',
+      minimizeTranscript: 'Minimize transcript',
+      closeTranscript: 'Close transcript'
     },
     permission: {
       blocked: 'Permission blocked',

@@ -5,7 +5,8 @@ import type {
   MediaDevice,
   CallStats,
   ToastMessage,
-  NetworkQuality
+  NetworkQuality,
+  TranscriptEntry
 } from './types'
 
 /**
@@ -43,6 +44,14 @@ export interface EventMap {
   'screen-share-started': { uid: string }
   /** Screen share stopped */
   'screen-share-stopped': { uid: string }
+  /** Transcript entry received */
+  'transcript-entry': TranscriptEntry
+  /** Transcript started */
+  'transcript-started': { language: string }
+  /** Transcript stopped */
+  'transcript-stopped': void
+  /** Transcript error */
+  'transcript-error': { code: string; message: string }
 }
 
 /**
