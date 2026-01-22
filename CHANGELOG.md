@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed "INVALID_REMOTE_USER: user is not in the channel" error when second user joins
+- Fixed "Cannot read properties of undefined (reading 'updateVideoTrack')" error
+  - Added track readiness check before attempting to play video
+  - Check `MediaStreamTrack.readyState === 'live'` before calling Agora's `play()` method
+- Improved subscribe error handling to detect and abort when user has left the channel
 - Added retry mechanism with exponential backoff for remote user subscription
 - Improved remote video attachment with automatic retry when track isn't ready
 - Added user presence verification before subscribing to remote streams
+- Enhanced native video fallback for both local and remote video tracks
 
 ## [1.0.12] - 2026-01-21
 
