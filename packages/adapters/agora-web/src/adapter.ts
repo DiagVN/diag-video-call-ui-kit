@@ -51,6 +51,89 @@ export class AgoraWebAdapter implements Actions {
     }
   }
 
+  /**
+   * Check if a user has published tracks and subscribe to them if we haven't already.
+   * This handles race conditions where user-published might fire before we're ready.
+   */
+  private async checkAndSubscribeToUser(user: { uid: string | number; hasAudio: boolean; hasVideo: boolean; audioTrack?: unknown; videoTrack?: unknown }): Promise<void> {
+    if (!this.client || this.client.connectionState !== 'CONNECTED') {
+      return
+    }
+
+    const participant = this.participants.get(String(user.uid))
+    if (!participant) {
+      return
+    }
+
+    // Check if user has audio published but we haven't subscribed
+    if (user.hasAudio && !user.audioTrack && !participant.audioEnabled) {
+      this.log('Detected missed audio subscription for:', user.uid)
+      try {
+        await this.client.subscribe(user as Parameters<IAgoraRTCClient['subscribe']>[0], 'audio')
+        participant.audioEnabled = true
+        // Get the updated user to play audio
+        const updatedUser = this.client.remoteUsers.find(u => u.uid === user.uid)
+        if (updatedUser?.audioTrack) {
+          updatedUser.audioTrack.play()
+        }
+        this.eventBus.emit('participant-updated', participant)
+        this.log('Successfully subscribed to missed audio for:', user.uid)
+      } catch (error) {
+        this.log('Failed to subscribe to missed audio for:', user.uid, error)
+      }
+    }
+
+    // Check if user has video published but we haven't subscribed
+    if (user.hasVideo && !user.videoTrack && !participant.videoEnabled) {
+      this.log('Detected missed video subscription for:', user.uid)
+      try {
+        await this.client.subscribe(user as Parameters<IAgoraRTCClient['subscribe']>[0], 'video')
+        participant.videoEnabled = true
+        this.eventBus.emit('participant-updated', participant)
+        this.log('Successfully subscribed to missed video for:', user.uid)
+      } catch (error) {
+        this.log('Failed to subscribe to missed video for:', user.uid, error)
+      }
+    }
+  }
+
+  /**
+   * Check all remote users for any missed subscriptions.
+   * This is a safety net that runs after joining to catch any users
+   * that might have published tracks before we were ready to subscribe.
+   */
+  private async checkAllRemoteUsersForMissedSubscriptions(): Promise<void> {
+    if (!this.client || this.client.connectionState !== 'CONNECTED') {
+      return
+    }
+
+    this.log('Checking all remote users for missed subscriptions...')
+    const remoteUsers = this.client.remoteUsers
+
+    for (const user of remoteUsers) {
+      // Make sure user is tracked as participant
+      if (!this.participants.has(String(user.uid))) {
+        this.log('Found untracked user, adding:', user.uid)
+        const participant: Participant = {
+          id: String(user.uid),
+          displayName: `User ${user.uid}`,
+          role: 'audience',
+          isLocal: false,
+          audioEnabled: false,
+          videoEnabled: false,
+          isSpeaking: false,
+          networkQuality: 0,
+          joinedAt: Date.now()
+        }
+        this.participants.set(String(user.uid), participant)
+        this.eventBus.emit('participant-joined', participant)
+      }
+
+      // Check for missed subscriptions
+      await this.checkAndSubscribeToUser(user)
+    }
+  }
+
   private emitStateChange(to: CallState) {
     const from = this.callState
     this.callState = to
@@ -79,6 +162,12 @@ export class AgoraWebAdapter implements Actions {
       }
       this.participants.set(String(user.uid), participant)
       this.eventBus.emit('participant-joined', participant)
+      
+      // Check if user already has published tracks that we might have missed
+      // This can happen if user-published fired before user-joined was processed
+      setTimeout(() => {
+        this.checkAndSubscribeToUser(user)
+      }, 200)
     })
 
     this.client.on('user-left', user => {
@@ -90,6 +179,13 @@ export class AgoraWebAdapter implements Actions {
     this.client.on('user-published', async (user, mediaType) => {
       this.log('User published:', user.uid, mediaType)
       
+      // IMPORTANT: Use the user object directly from the event callback.
+      // The Agora SDK passes the correct user reference in the callback.
+      // Do NOT look up the user from remoteUsers as it may not be synchronized yet.
+      
+      // Store the user UID for logging
+      const userId = user.uid
+      
       // Retry subscribe with exponential backoff
       const maxRetries = 3
       let retryCount = 0
@@ -99,54 +195,67 @@ export class AgoraWebAdapter implements Actions {
         try {
           // Verify client is still connected
           if (!this.client || this.client.connectionState !== 'CONNECTED') {
-            this.log('Client not connected, skipping subscribe')
+            this.log('Client not connected, skipping subscribe for:', userId)
             return
           }
           
-          // Verify user is still in channel before subscribing
-          const remoteUsers = this.client.remoteUsers
-          const isUserInChannel = remoteUsers.some(u => u.uid === user.uid)
-          
-          if (!isUserInChannel) {
-            this.log('User not in remoteUsers list, they may have left:', user.uid)
-            // Check if user has left already
-            if (retryCount > 0) {
-              this.log('User left before subscribe completed, aborting')
-              return
-            }
-            await new Promise(resolve => setTimeout(resolve, 300 * (retryCount + 1)))
-            retryCount++
-            continue
+          // Add a small delay on first attempt to let SDK internal state synchronize
+          // This helps avoid the race condition where the user is in the channel
+          // but the SDK hasn't fully processed the join
+          if (retryCount === 0) {
+            await new Promise(resolve => setTimeout(resolve, 100))
           }
           
+          // Double-check client is still valid after the delay
+          if (!this.client) {
+            this.log('Client became null during subscribe attempt, aborting:', userId)
+            return
+          }
+          
+          // Subscribe using the user object from the callback directly
+          // This is more reliable than looking up from remoteUsers
           await this.client.subscribe(user, mediaType)
           subscribed = true
-          this.log('Successfully subscribed to:', user.uid, mediaType)
+          this.log('Successfully subscribed to:', userId, mediaType)
         } catch (error: unknown) {
           const errorMessage = error instanceof Error ? error.message : String(error)
           const errorString = String(error)
           
-          // Check if it's a "user not in channel" error - don't retry, user has left
+          // Check if it's a "user not in channel" error
           if (errorString.includes('not in the channel') || errorString.includes('USER_NOT_FOUND')) {
-            this.log('User not in channel, aborting subscribe:', user.uid)
+            // The user may have left and rejoined, or there's a sync issue
+            // Check if the user is still in our participants map (meaning user-left wasn't received)
+            const stillTracked = this.participants.has(String(userId))
+            
+            if (stillTracked && retryCount < maxRetries - 1) {
+              // User is still tracked but SDK says not in channel
+              // This is likely a race condition - wait longer and retry
+              this.log('User tracked but SDK says not in channel, waiting longer:', userId)
+              retryCount++
+              await new Promise(resolve => setTimeout(resolve, 500 * retryCount))
+              continue
+            }
+            
+            this.log('User not in channel, aborting subscribe:', userId)
             return
           }
           
           retryCount++
-          this.log(`Subscribe attempt ${retryCount} failed for ${user.uid}:`, errorMessage)
+          this.log(`Subscribe attempt ${retryCount} failed for ${userId}:`, errorMessage)
           
           if (retryCount < maxRetries) {
             // Wait before retry with exponential backoff
             await new Promise(resolve => setTimeout(resolve, 300 * retryCount))
           } else {
-            this.log('Max retries reached for subscribing to:', user.uid, mediaType)
-            this.emitError('SUBSCRIBE_FAILED', 'vc.err.subscribeFailed', errorMessage)
+            this.log('Max retries reached for subscribing to:', userId, mediaType)
+            // Don't emit error for this - it's often a transient issue
+            // The user will republish if they're still in the channel
             return
           }
         }
       }
 
-      const participant = this.participants.get(String(user.uid))
+      const participant = this.participants.get(String(userId))
       if (participant) {
         if (mediaType === 'audio') {
           participant.audioEnabled = true
@@ -290,6 +399,12 @@ export class AgoraWebAdapter implements Actions {
       this.eventBus.emit('participant-joined', localParticipant)
 
       this.emitStateChange('in_call')
+      
+      // Schedule a check for any existing remote users that might have published
+      // before we joined. This catches users that joined before us.
+      setTimeout(() => {
+        this.checkAllRemoteUsersForMissedSubscriptions()
+      }, 500)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.log('Join failed:', error)
