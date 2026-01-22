@@ -179,15 +179,11 @@ export class AgoraWebAdapter implements Actions {
     this.client.on('user-published', async (user, mediaType) => {
       this.log('User published:', user.uid, mediaType)
       
-      // IMPORTANT: Use the user object directly from the event callback.
-      // The Agora SDK passes the correct user reference in the callback.
-      // Do NOT look up the user from remoteUsers as it may not be synchronized yet.
-      
-      // Store the user UID for logging
+      // Store the user UID - we'll use this to get a fresh reference
       const userId = user.uid
       
       // Retry subscribe with exponential backoff
-      const maxRetries = 3
+      const maxRetries = 5
       let retryCount = 0
       let subscribed = false
       
@@ -199,22 +195,32 @@ export class AgoraWebAdapter implements Actions {
             return
           }
           
-          // Add a small delay on first attempt to let SDK internal state synchronize
-          // This helps avoid the race condition where the user is in the channel
-          // but the SDK hasn't fully processed the join
-          if (retryCount === 0) {
-            await new Promise(resolve => setTimeout(resolve, 100))
-          }
+          // CRITICAL: Wait for SDK to synchronize its internal state
+          // The user-published event can fire before remoteUsers is updated
+          // Longer initial delay to ensure SDK is ready
+          const delay = retryCount === 0 ? 300 : 500 * retryCount
+          await new Promise(resolve => setTimeout(resolve, delay))
           
           // Double-check client is still valid after the delay
-          if (!this.client) {
-            this.log('Client became null during subscribe attempt, aborting:', userId)
+          if (!this.client || this.client.connectionState !== 'CONNECTED') {
+            this.log('Client disconnected during delay, aborting:', userId)
             return
           }
           
-          // Subscribe using the user object from the callback directly
-          // This is more reliable than looking up from remoteUsers
-          await this.client.subscribe(user, mediaType)
+          // IMPORTANT: Get a FRESH user reference from remoteUsers
+          // The user object from the callback can become stale
+          const freshUser = this.client.remoteUsers.find(u => u.uid === userId)
+          
+          if (!freshUser) {
+            // User not in remoteUsers yet - this is the race condition
+            // The user IS in the channel (we got user-published) but SDK hasn't synced
+            this.log('User not yet in remoteUsers, retry:', userId, 'attempt:', retryCount + 1)
+            retryCount++
+            continue
+          }
+          
+          this.log('Found fresh user reference, attempting subscribe:', userId)
+          await this.client.subscribe(freshUser, mediaType)
           subscribed = true
           this.log('Successfully subscribed to:', userId, mediaType)
         } catch (error: unknown) {
@@ -223,33 +229,25 @@ export class AgoraWebAdapter implements Actions {
           
           // Check if it's a "user not in channel" error
           if (errorString.includes('not in the channel') || errorString.includes('USER_NOT_FOUND')) {
-            // The user may have left and rejoined, or there's a sync issue
-            // Check if the user is still in our participants map (meaning user-left wasn't received)
+            // The SDK says user is not in channel
+            // But we got user-published, so they ARE there - just not synced yet
             const stillTracked = this.participants.has(String(userId))
             
             if (stillTracked && retryCount < maxRetries - 1) {
-              // User is still tracked but SDK says not in channel
-              // This is likely a race condition - wait longer and retry
-              this.log('User tracked but SDK says not in channel, waiting longer:', userId)
+              this.log('Subscribe failed but user still tracked, will retry:', userId)
               retryCount++
-              await new Promise(resolve => setTimeout(resolve, 500 * retryCount))
               continue
             }
             
-            this.log('User not in channel, aborting subscribe:', userId)
+            this.log('User not in channel after retries, aborting subscribe:', userId)
             return
           }
           
           retryCount++
           this.log(`Subscribe attempt ${retryCount} failed for ${userId}:`, errorMessage)
           
-          if (retryCount < maxRetries) {
-            // Wait before retry with exponential backoff
-            await new Promise(resolve => setTimeout(resolve, 300 * retryCount))
-          } else {
+          if (retryCount >= maxRetries) {
             this.log('Max retries reached for subscribing to:', userId, mediaType)
-            // Don't emit error for this - it's often a transient issue
-            // The user will republish if they're still in the channel
             return
           }
         }

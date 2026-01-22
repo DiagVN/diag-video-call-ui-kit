@@ -16,6 +16,22 @@
       </button>
     </div>
 
+    <!-- Room Settings (Agora Mode) -->
+    <div v-if="mode === 'agora'" class="prejoin-view__room-settings">
+      <div class="room-setting">
+        <label>Channel Name:</label>
+        <input v-model="channelName" type="text" placeholder="test-room" />
+      </div>
+      <div class="room-setting">
+        <label>User ID:</label>
+        <input v-model.number="userId" type="number" placeholder="Auto-generated" />
+      </div>
+      <div class="room-setting">
+        <label>Display Name:</label>
+        <input v-model="displayName" type="text" placeholder="Your name" />
+      </div>
+    </div>
+
     <DiagPreJoinPanel
       ref="prejoinRef"
       :devices="devices"
@@ -45,6 +61,9 @@ const store = useVideoCallStore()
 const prejoinRef = ref<InstanceType<typeof DiagPreJoinPanel> | null>(null)
 
 const mode = ref<'mock' | 'agora'>((import.meta.env.VITE_DEFAULT_MODE as 'mock' | 'agora') || 'mock')
+const channelName = ref('test-room')
+const userId = ref(Math.floor(Math.random() * 900000) + 100000) // 6-digit random ID
+const displayName = ref(`User-${userId.value}`)
 const devices = ref<Devices>({
   microphones: [],
   cameras: [],
@@ -188,9 +207,11 @@ async function handleJoin(options: { joinMuted: boolean; joinVideoOff: boolean }
   } else {
     // Agora join
     try {
-      const channel = 'test-channel'
-      const uid = Math.floor(Math.random() * 10000)
+      const channel = channelName.value || 'test-room'
+      const uid = userId.value || Math.floor(Math.random() * 900000) + 100000
       let token: string | undefined
+
+      console.log('[Join] Joining channel:', channel, 'with UID:', uid)
 
       // If a token server is configured, attempt to fetch a token
       const tokenServerUrl = import.meta.env.VITE_TOKEN_SERVER_URL as string | undefined
@@ -226,7 +247,7 @@ async function handleJoin(options: { joinMuted: boolean; joinVideoOff: boolean }
         token, // Pass undefined/null for static key projects
         joinMuted: options.joinMuted,
         joinVideoOff: options.joinVideoOff,
-        displayName: 'Test User'
+        displayName: displayName.value || `User-${uid}`
       })
       router.push('/call')
     } catch (error) {
@@ -262,6 +283,49 @@ onBeforeUnmount(() => {
   border-radius: var(--vc-radius-sm);
   box-shadow: var(--vc-shadow-sm);
   z-index: 1000;
+}
+
+.prejoin-view__room-settings {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--vc-surface);
+  border: 1px solid var(--vc-border);
+  border-radius: var(--vc-radius-sm);
+  box-shadow: var(--vc-shadow-sm);
+  z-index: 1000;
+  min-width: 280px;
+}
+
+.room-setting {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.room-setting label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vc-fg-muted);
+}
+
+.room-setting input {
+  padding: 8px 12px;
+  border: 1px solid var(--vc-border);
+  border-radius: var(--vc-radius-xs);
+  background: var(--vc-bg);
+  color: var(--vc-fg);
+  font-size: 14px;
+}
+
+.room-setting input:focus {
+  outline: none;
+  border-color: var(--vc-primary);
 }
 
 .mode-btn {
