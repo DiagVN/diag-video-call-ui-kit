@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.0.9-blue.svg)
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
 ![Vue](https://img.shields.io/badge/vue-3.4+-green.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-5.4+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -20,9 +20,19 @@
 
 ---
 
+## 🆕 What's New in v2
+
+- 🎭 **Virtual Background** - Blur, solid color, or custom image backgrounds
+- 🏗️ **Redesigned Architecture** - Cleaner separation of concerns with v2 packages
+- 📝 **Full TypeScript** - Strict typing throughout with better DX
+- ⚡ **Improved Performance** - Optimized video rendering with native video fallback
+
+> **Migration:** v2 packages (`*-v2`) can be used alongside v1 packages during migration.
+
 ## ✨ Features
 
 - 🎨 **DIAG Brand Styling** - Clean clinical design with DIAG blue gradients, rounded corners, soft shadows
+- 🎭 **Virtual Background** - Blur, color, and image backgrounds with preview/apply workflow
 - 🌍 **i18n Ready** - Built-in Vietnamese and English translations with runtime switching
 - 🔌 **SDK-Agnostic Architecture** - Headless core layer with pluggable adapters (Agora included)
 - 📱 **Responsive** - Mobile-first design that works on all screen sizes
@@ -32,6 +42,16 @@
 - 🧪 **Tested** - Vitest + Vue Test Utils coverage
 
 ## 📦 Packages
+
+### V2 Packages (Recommended)
+
+| Package | Description |
+|---------|-------------|
+| [`@diagvn/video-call-core-v2`](./packages/core-v2) | Redesigned core with Pinia store |
+| [`@diagvn/video-call-ui-kit-v2`](./packages/ui-kit-v2) | Vue 3 Composition API components |
+| [`@diagvn/agora-web-adapter-v2`](./packages/adapters/agora-web-v2) | Agora adapter with Virtual Background |
+
+### V1 Packages (Legacy)
 
 | Package | Description |
 |---------|-------------|
@@ -44,26 +64,20 @@
 ```
 diag-video-call-ui-kit/
 ├── packages/
-│   ├── core/                  # Headless state machine (SSR-safe)
-│   │   ├── src/
-│   │   │   ├── types.ts       # TypeScript definitions
-│   │   │   ├── events.ts      # Event bus types
-│   │   │   ├── actions.ts     # Actions interface
-│   │   │   └── store.ts       # Pinia store
-│   │   └── package.json
-│   ├── ui-kit/                # Vue components + DIAG styles
-│   │   ├── src/
-│   │   │   ├── components/    # Vue components
-│   │   │   ├── styles/        # CSS tokens & base styles
-│   │   │   └── i18n/          # Translation messages
-│   │   └── package.json
+│   ├── core-v2/               # V2 Core with Pinia store
+│   ├── ui-kit-v2/             # V2 Vue components
+│   ├── adapters/
+│   │   └── agora-web-v2/      # V2 Agora adapter with VB
+│   ├── core/                  # V1 Headless state machine
+│   ├── ui-kit/                # V1 Vue components
 │   └── adapters/
-│       └── agora-web/         # Agora Web SDK adapter
-│           ├── src/
-│           │   └── adapter.ts # AgoraWebAdapter implementation
-│           └── package.json
-└── apps/
-    └── playground/            # Demo app with mock/Agora modes
+│       └── agora-web/         # V1 Agora adapter
+├── apps/
+│   ├── playground-v2/         # V2 Demo app
+│   └── playground/            # V1 Demo app
+└── docs/
+    ├── VIRTUAL_BACKGROUND_GUIDE.md
+    └── SEPARATE_VIEWS_GUIDE.md
 ```
 
 ## 🚀 Installation

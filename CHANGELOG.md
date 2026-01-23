@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-01-23
+
+### 🎉 Major Release: V2 Architecture
+
+This release introduces a completely redesigned v2 architecture with improved modularity, better TypeScript support, and new features like Virtual Background.
+
+### Added
+
+#### Virtual Background Support
+- **Two-processor architecture** following Agora's reference implementation
+  - `vbProcessor` - Main processor for actual call video
+  - `vbPreviewProcessor` - Separate processor for settings preview
+- **Preview/Apply separation** - Preview VB effects without affecting the main video
+- **Background types supported**:
+  - Blur (adjustable strength)
+  - Solid color
+  - Custom image
+- **WASM-based processing** using `agora-extension-virtual-background@1.3.0`
+
+#### New V2 Packages
+- `@diagvn/video-call-core-v2` - Redesigned core with Pinia store integration
+- `@diagvn/video-call-ui-kit-v2` - Vue 3 components with Composition API
+- `@diagvn/agora-web-adapter-v2` - Minimal Agora adapter with VB support
+
+#### New Components (V2)
+- `DiagVideoCallV2` - Main call component
+- `DiagPrejoinV2` - Pre-join screen with device preview
+- `DiagCallShellV2` - Call layout shell
+- `DiagVideoGridV2` - Responsive video grid
+- `DiagVideoTileV2` - Individual video tile
+- `DiagCallControlsV2` - Call control buttons
+- `DiagSettingsPanelV2` - Settings with VB configuration
+- `DiagTopBarV2` - Top bar with meeting info
+- `DiagParticipantsPanelV2` - Participants list
+- `DiagChatPanelV2` - Chat panel
+- `DiagTranscriptPanelV2` - Transcript panel
+- `DiagToastsV2` - Toast notifications
+- `DiagBannerV2` - Banner notifications
+
+#### API Improvements
+- Extended `VideoRenderer` interface with `attachPreviewWithVB` method
+- Added `applied` flag to `virtual-background-changed` event
+- Sync `attachPreview` for normal preview, async `attachPreviewWithVB` for VB preview
+
+### Technical Details
+- Vue 3 Composition API throughout
+- Full TypeScript support with strict typing
+- Pinia store for state management
+- Event-driven architecture with typed events
+- Modular package structure for tree-shaking
+
+---
+
 ## [1.0.18] - 2026-01-22
 
 ### Fixed
