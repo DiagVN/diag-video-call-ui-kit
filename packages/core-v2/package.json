@@ -1,0 +1,54 @@
+{
+  "name": "@diagvn/video-call-core-v2",
+  "version": "2.0.0",
+  "description": "Video Call Core v2 - Comprehensive state management and types for video calling with full Agora feature support",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly --outDir dist",
+    "dev": "vite build --watch",
+    "test": "vitest",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "peerDependencies": {
+    "pinia": "^2.1.0",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "pinia": "^2.1.7",
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^3.7.0",
+    "vitest": "^1.1.0",
+    "vue": "^3.4.0",
+    "vue-tsc": "^1.8.0"
+  },
+  "keywords": [
+    "video-call",
+    "agora",
+    "webrtc",
+    "vue3",
+    "pinia",
+    "virtual-background",
+    "noise-suppression",
+    "recording"
+  ],
+  "author": "DiagVN",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/diagvn/video-call-ui-kit"
+  }
+}
