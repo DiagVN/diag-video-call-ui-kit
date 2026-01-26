@@ -73,47 +73,83 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # V1 Packages
+      # V1 Packages (skip if version already published)
       - name: Publish @diagvn/video-call-core
         run: |
           cd packages/core
-          pnpm publish --no-git-checks
+          VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if npm view "${PKG_NAME}@${VERSION}" version 2>/dev/null; then
+            echo "Version ${VERSION} already published, skipping..."
+          else
+            pnpm publish --no-git-checks
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish @diagvn/video-call-ui-kit
         run: |
           cd packages/ui-kit
-          pnpm publish --no-git-checks
+          VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if npm view "${PKG_NAME}@${VERSION}" version 2>/dev/null; then
+            echo "Version ${VERSION} already published, skipping..."
+          else
+            pnpm publish --no-git-checks
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish @diagvn/agora-web-adapter
         run: |
           cd packages/adapters/agora-web
-          pnpm publish --no-git-checks
+          VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if npm view "${PKG_NAME}@${VERSION}" version 2>/dev/null; then
+            echo "Version ${VERSION} already published, skipping..."
+          else
+            pnpm publish --no-git-checks
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # V2 Packages
+      # V2 Packages (skip if version already published)
       - name: Publish @diagvn/video-call-core-v2
         run: |
           cd packages/core-v2
-          pnpm publish --no-git-checks
+          VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if npm view "${PKG_NAME}@${VERSION}" version 2>/dev/null; then
+            echo "Version ${VERSION} already published, skipping..."
+          else
+            pnpm publish --no-git-checks
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish @diagvn/video-call-ui-kit-v2
         run: |
           cd packages/ui-kit-v2
-          pnpm publish --no-git-checks
+          VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if npm view "${PKG_NAME}@${VERSION}" version 2>/dev/null; then
+            echo "Version ${VERSION} already published, skipping..."
+          else
+            pnpm publish --no-git-checks
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish @diagvn/agora-web-adapter-v2
         run: |
           cd packages/adapters/agora-web-v2
-          pnpm publish --no-git-checks
+          VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if npm view "${PKG_NAME}@${VERSION}" version 2>/dev/null; then
+            echo "Version ${VERSION} already published, skipping..."
+          else
+            pnpm publish --no-git-checks
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
