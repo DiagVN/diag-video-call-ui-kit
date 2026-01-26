@@ -16,9 +16,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build && vue-tsc --emitDeclarationOnly",
+    "build": "vite build",
     "dev": "vite build --watch",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "agora-rtc-sdk-ng": "^4.20.0",

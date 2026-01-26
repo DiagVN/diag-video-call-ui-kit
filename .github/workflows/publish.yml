@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to publish (e.g., 1.0.0)"
+        description: "Version to publish (e.g., 1.0.0 or 2.0.0)"
         required: false
         type: string
 
@@ -59,15 +59,21 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
         run: |
           VERSION=${{ github.event.inputs.version }}
+          # V1 packages
           cd packages/core && npm version $VERSION --no-git-tag-version
           cd ../ui-kit && npm version $VERSION --no-git-tag-version
           cd ../adapters/agora-web && npm version $VERSION --no-git-tag-version
+          # V2 packages
+          cd ../../core-v2 && npm version $VERSION --no-git-tag-version
+          cd ../ui-kit-v2 && npm version $VERSION --no-git-tag-version
+          cd ../adapters/agora-web-v2 && npm version $VERSION --no-git-tag-version
 
       - name: Authenticate to GitHub Packages
         run: echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # V1 Packages
       - name: Publish @diagvn/video-call-core
         run: |
           cd packages/core
@@ -85,6 +91,28 @@ jobs:
       - name: Publish @diagvn/agora-web-adapter
         run: |
           cd packages/adapters/agora-web
+          pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # V2 Packages
+      - name: Publish @diagvn/video-call-core-v2
+        run: |
+          cd packages/core-v2
+          pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish @diagvn/video-call-ui-kit-v2
+        run: |
+          cd packages/ui-kit-v2
+          pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish @diagvn/agora-web-adapter-v2
+        run: |
+          cd packages/adapters/agora-web-v2
           pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,7 +139,11 @@ jobs:
             # Configure npm for GitHub Packages
             echo "@diagvn:registry=https://npm.pkg.github.com" >> .npmrc
 
-            # Install packages
+            # V2 Packages (Recommended - includes Virtual Background)
+            pnpm add @diagvn/video-call-core-v2 @diagvn/video-call-ui-kit-v2
+            pnpm add @diagvn/agora-web-adapter-v2 agora-rtc-sdk-ng
+
+            # V1 Packages (Legacy)
             pnpm add @diagvn/video-call-core @diagvn/video-call-ui-kit
             pnpm add @diagvn/agora-web-adapter agora-rtc-sdk-ng
             ```
