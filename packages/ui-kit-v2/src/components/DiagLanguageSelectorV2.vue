@@ -15,34 +15,22 @@
 
           <!-- Language Dropdown -->
           <div class="vc-language-selector__body">
-            <label class="vc-language-selector__label">
+            <label class="vc-language-selector__label" for="language-select">
               {{ $t('vc.label.transcriptLanguage') }}
             </label>
-            <div class="vc-language-selector__dropdown" :class="{ 'vc-language-selector__dropdown--open': isDropdownOpen }">
-              <button 
-                type="button"
-                class="vc-language-selector__dropdown-trigger"
-                @click="isDropdownOpen = !isDropdownOpen"
-                :aria-expanded="isDropdownOpen"
+            <select
+              id="language-select"
+              v-model="internalLanguage"
+              class="vc-language-selector__select"
+            >
+              <option
+                v-for="lang in availableLanguages"
+                :key="lang.code"
+                :value="lang.code"
               >
-                <span>{{ selectedLanguageLabel }}</span>
-                <VcIcon name="chevron-down" size="sm" class="vc-language-selector__dropdown-icon" />
-              </button>
-              
-              <div v-if="isDropdownOpen" class="vc-language-selector__dropdown-menu">
-                <button
-                  v-for="lang in availableLanguages"
-                  :key="lang.code"
-                  type="button"
-                  class="vc-language-selector__dropdown-item"
-                  :class="{ 'vc-language-selector__dropdown-item--selected': lang.code === internalLanguage }"
-                  @click="selectLanguage(lang.code)"
-                >
-                  <span>{{ lang.name }}</span>
-                  <VcIcon v-if="lang.code === internalLanguage" name="check" size="sm" />
-                </button>
-              </div>
-            </div>
+                {{ lang.name }}
+              </option>
+            </select>
             
             <p class="vc-language-selector__info">
               {{ $t('vc.message.languageInfo') }}
@@ -80,8 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import VcIcon from './icons/VcIcon.vue'
+import { ref, watch } from 'vue'
 
 interface LanguageOption {
   code: string
@@ -140,7 +127,6 @@ const props = withDefaults(defineProps<DiagLanguageSelectorV2Props>(), {
 const emit = defineEmits<DiagLanguageSelectorV2Emits>()
 
 // State
-const isDropdownOpen = ref(false)
 const internalLanguage = ref(props.selectedLanguage)
 
 // Sync internal state when prop changes
@@ -148,26 +134,14 @@ watch(() => props.selectedLanguage, (newVal) => {
   internalLanguage.value = newVal
 })
 
-// Reset dropdown when modal opens/closes
+// Reset when modal opens
 watch(() => props.modelValue, (open) => {
   if (open) {
-    isDropdownOpen.value = false
     internalLanguage.value = props.selectedLanguage
   }
 })
 
-// Computed
-const selectedLanguageLabel = computed(() => {
-  const lang = props.availableLanguages.find(l => l.code === internalLanguage.value)
-  return lang?.name || internalLanguage.value
-})
-
 // Methods
-function selectLanguage(code: string) {
-  internalLanguage.value = code
-  isDropdownOpen.value = false
-}
-
 function handleClose() {
   emit('update:modelValue', false)
   emit('cancel')
@@ -231,15 +205,8 @@ function handleConfirm() {
   color: var(--vc-text);
 }
 
-/* Dropdown */
-.vc-language-selector__dropdown {
-  position: relative;
-}
-
-.vc-language-selector__dropdown-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* Native Select */
+.vc-language-selector__select {
   width: 100%;
   padding: var(--vc-space-sm) var(--vc-space-md);
   background: var(--vc-bg-secondary);
@@ -248,71 +215,31 @@ function handleConfirm() {
   color: var(--vc-text);
   font-size: var(--vc-text-base);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.2s;
+  appearance: auto;
 }
 
-.vc-language-selector__dropdown-trigger:hover {
+.vc-language-selector__select:hover {
   border-color: var(--vc-primary);
 }
 
-.vc-language-selector__dropdown--open .vc-language-selector__dropdown-trigger {
+.vc-language-selector__select:focus {
+  outline: none;
   border-color: var(--vc-primary);
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
 }
 
-.vc-language-selector__dropdown-icon {
-  transition: transform 0.2s;
-}
-
-.vc-language-selector__dropdown--open .vc-language-selector__dropdown-icon {
-  transform: rotate(180deg);
-}
-
-.vc-language-selector__dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  max-height: 240px;
-  overflow-y: auto;
-  background: var(--vc-bg-secondary);
-  border: 1px solid var(--vc-primary);
-  border-top: none;
-  border-bottom-left-radius: var(--vc-radius-md);
-  border-bottom-right-radius: var(--vc-radius-md);
-  z-index: 10;
-}
-
-.vc-language-selector__dropdown-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: var(--vc-space-sm) var(--vc-space-md);
-  background: transparent;
-  border: none;
+.vc-language-selector__select option {
+  background: var(--vc-bg);
   color: var(--vc-text);
-  font-size: var(--vc-text-base);
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.vc-language-selector__dropdown-item:hover {
-  background: var(--vc-bg-hover);
-}
-
-.vc-language-selector__dropdown-item--selected {
-  background: var(--vc-primary-light);
-  color: var(--vc-primary);
-  font-weight: 500;
+  padding: var(--vc-space-sm);
 }
 
 .vc-language-selector__info {
-  margin: var(--vc-space-sm) 0 0;
+  margin: var(--vc-space-md) 0 0;
   font-size: var(--vc-text-xs);
   color: var(--vc-text-secondary);
+  line-height: 1.5;
 }
 
 /* Loading */
