@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2026-01-26
+
+### Fixed
+- **Lint cleanup** - Removed unused imports and variables in v2 packages
+  - Cleaned up adapter.ts (removed unused type imports)
+  - Cleaned up DiagCallControlsV2.vue (removed unused layoutIcon computed)
+  - Cleaned up DiagCallShellV2.vue (removed unused inject import)
+
+---
+
 ## [2.0.2] - 2026-01-26
 
 ### Added
