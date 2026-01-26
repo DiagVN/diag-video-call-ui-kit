@@ -11,13 +11,10 @@ import AgoraRTC, {
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
   IRemoteAudioTrack,
-  IRemoteVideoTrack,
   UID,
   ConnectionState,
   NetworkQuality,
   ScreenVideoTrackInitConfig,
-  CameraVideoTrackInitConfig,
-  MicrophoneAudioTrackInitConfig,
   EncryptionMode
 } from 'agora-rtc-sdk-ng'
 
@@ -35,10 +32,7 @@ import type {
   LiveStreamConfig,
   LiveStreamInfo,
   EncryptionConfig,
-  ChatMessage,
-  TranscriptEntry,
   VideoQuality,
-  LayoutMode,
   NetworkQuality as NetworkQualityLevel,
   VideoRenderer,
   JoinOptions
@@ -517,7 +511,7 @@ export class AgoraAdapterV2 implements Actions {
       await this.localVideoTrack.setBeautyEffect(false)
       this.beautyEffectEnabled = false
       this.eventBus.emit('beautyEffectChanged', { options: {}, enabled: false })
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors when disabling
     }
   }
@@ -649,7 +643,7 @@ export class AgoraAdapterV2 implements Actions {
       })
 
       this.liveStreamInfo = null
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors when stopping
     }
   }

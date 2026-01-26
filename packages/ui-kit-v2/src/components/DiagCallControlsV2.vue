@@ -278,17 +278,6 @@ const hasMoreOptions = computed(() =>
   props.features.beautyEffects ||
   props.features.noiseSuppression
 )
-
-const layoutIcon = computed(() => {
-  switch (props.layout) {
-    case 'grid': return '▦'
-    case 'speaker': return '◧'
-    case 'spotlight': return '◱'
-    case 'side-by-side': return '◫'
-    case 'pip': return '◳'
-    default: return '▦'
-  }
-})
 </script>
 
 <style scoped>
