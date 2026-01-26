@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.5] - 2026-01-26
+
+### Changed
+- **Updated Pinia dependency** - Upgraded pinia from `^2.1.x` to `^3.0.4` in v2 packages to match v1
+  - Updated `core-v2` peerDependencies and devDependencies
+  - Updated `ui-kit-v2` peerDependencies and devDependencies
+
+---
+
 ## [2.0.4] - 2026-01-26
 
 ### Fixed

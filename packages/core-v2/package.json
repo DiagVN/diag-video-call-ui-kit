@@ -1,6 +1,6 @@
 {
   "name": "@diagvn/video-call-core-v2",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Video Call Core v2 - Comprehensive state management and types for video calling with full Agora feature support",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,12 +22,12 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "pinia": "^2.1.0",
+    "pinia": "^3.0.4",
     "vue": "^3.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "pinia": "^2.1.7",
+    "pinia": "^3.0.4",
     "typescript": "^5.3.0",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.7.0",
