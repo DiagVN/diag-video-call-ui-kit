@@ -46,6 +46,7 @@
     "noise-suppression",
     "recording"
   ],
+  "sideEffects": false,
   "author": "DiagVN",
   "license": "MIT",
   "repository": {

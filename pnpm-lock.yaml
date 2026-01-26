@@ -189,7 +189,7 @@ importers:
   packages/adapters/agora-web-v2:
     dependencies:
       '@diagvn/video-call-core-v2':
-        specifier: workspace:*
+        specifier: ^2.0.0
         version: link:../../core-v2
     devDependencies:
       agora-extension-ai-denoiser:

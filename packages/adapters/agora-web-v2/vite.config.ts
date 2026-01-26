@@ -20,6 +20,9 @@ export default defineConfig({
       external: [
         'agora-rtc-sdk-ng',
         'agora-rtm-sdk',
+        'agora-extension-virtual-background',
+        'agora-extension-beauty-effect',
+        'agora-extension-ai-denoiser',
         '@diagvn/video-call-core-v2'
       ],
       output: {

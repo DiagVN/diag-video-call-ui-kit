@@ -39,7 +39,7 @@
     }
   },
   "dependencies": {
-    "@diagvn/video-call-core-v2": "workspace:*"
+    "@diagvn/video-call-core-v2": "^2.0.0"
   },
   "devDependencies": {
     "agora-rtc-sdk-ng": "^4.20.0",
@@ -58,6 +58,11 @@
     "vue",
     "adapter"
   ],
+  "sideEffects": false,
   "author": "DiagVN",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/diagvn/video-call-ui-kit"
+  }
 }

@@ -2,9 +2,10 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.0.2-blue.svg)
+![Version](https://img.shields.io/badge/version-2.0.7-blue.svg)
 ![Vue](https://img.shields.io/badge/vue-3.4+-green.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-5.4+-blue.svg)
+![Pinia](https://img.shields.io/badge/pinia-3.0+-purple.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 **Production-ready Vue 3 Video Call UI Kit with Agora integration, Vietnamese/English i18n, and DIAG brand styling.**
@@ -20,13 +21,16 @@
 
 ---
 
-## 🆕 What's New in v2
+## 🆕 What's New in v2.0.7
 
-- 🎭 **Virtual Background** - Blur, solid color, or custom image backgrounds
+- 🎭 **Virtual Background** - Blur, solid color, or custom image backgrounds (requires optional extension)
+- 💅 **Beauty Effects** - Smoothing, lightening, redness, sharpness controls
+- 🔇 **AI Noise Suppression** - Advanced noise reduction for clear audio
 - 🗣️ **Speech-to-Text** - Real-time transcript support with Agora STT integration
-- 🏗️ **Redesigned Architecture** - Cleaner separation of concerns with v2 packages
+- 🏗️ **Redesigned Architecture** - Cleaner separation with Pinia 3.0+ store
 - 📝 **Full TypeScript** - Strict typing throughout with better DX
-- ⚡ **Improved Performance** - Optimized video rendering with native video fallback
+- ⚡ **Optimized Bundle** - Tree-shakeable with optional extensions externalized
+- 📦 **Dual Format** - ESM and CommonJS outputs for maximum compatibility
 
 > **Migration:** v2 packages (`*-v2`) can be used alongside v1 packages during migration.
 
@@ -96,27 +100,152 @@ echo "@diagvn:registry=https://npm.pkg.github.com" >> .npmrc
 
 Then install the packages:
 
+**V2 Packages (Recommended):**
 ```bash
-# Using pnpm (recommended)
-pnpm add @diagvn/video-call-core @diagvn/video-call-ui-kit
+# Core + UI Kit
+pnpm add @diagvn/video-call-core-v2 @diagvn/video-call-ui-kit-v2
 
 # With Agora adapter
+pnpm add @diagvn/agora-web-adapter-v2 agora-rtc-sdk-ng
+
+# Optional: Virtual background, beauty effects, noise suppression
+pnpm add agora-extension-virtual-background@^1.1.3
+pnpm add agora-extension-beauty-effect@^1.0.2-beta
+pnpm add agora-extension-ai-denoiser@^1.1.0
+```
+
+**V1 Packages (Legacy):**
+```bash
+pnpm add @diagvn/video-call-core @diagvn/video-call-ui-kit
 pnpm add @diagvn/agora-web-adapter agora-rtc-sdk-ng
-
-# Using npm
-npm install @diagvn/video-call-core @diagvn/video-call-ui-kit
-
-# Using yarn
-yarn add @diagvn/video-call-core @diagvn/video-call-ui-kit
 ```
 
 ### Peer Dependencies
 
+**For V2 packages:**
 ```bash
-pnpm add vue@^3.4.0 pinia@^2.1.7 vue-i18n@^9.9.0
+pnpm add vue@^3.4.0 pinia@^3.0.4 vue-i18n@^11.2.8
 ```
 
-## 🏃 Quick Start
+**For V1 packages:**
+```bash
+pnpm add vue@^3.4.0 pinia@^3.0.4 vue-i18n@^11.2.8
+```
+
+## 🏃 Quick Start (V2)
+
+### Option A: All-in-One DiagCallShell
+
+The simplest approach - one component handles everything:
+
+```ts
+// main.ts
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import { createI18n } from 'vue-i18n'
+import { createVideoCallI18n } from '@diagvn/video-call-ui-kit-v2'
+import '@diagvn/video-call-ui-kit-v2/style.css'
+import App from './App.vue'
+
+const app = createApp(App)
+app.use(createPinia())
+app.use(createI18n(createVideoCallI18n({}, 'vi')))
+app.mount('#app')
+```
+
+```vue
+<!-- App.vue -->
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { DiagCallShell } from '@diagvn/video-call-ui-kit-v2'
+import { useVideoCallStoreV2 } from '@diagvn/video-call-core-v2'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter-v2'
+
+const store = useVideoCallStoreV2()
+
+onMounted(async () => {
+  const adapter = createAgoraAdapter({
+    appId: import.meta.env.VITE_AGORA_APP_ID
+  })
+  store.setAdapter(adapter)
+  await store.init()
+})
+</script>
+
+<template>
+  <DiagCallShell
+    :channel="'my-room'"
+    :uid="12345"
+    :display-name="'John'"
+    @leave="() => console.log('Left call')"
+  />
+</template>
+```
+
+### Option B: Compose Individual Components
+
+For full control, compose components yourself:
+
+```vue
+<script setup lang="ts">
+import { computed, onMounted } from 'vue'
+import {
+  DiagPreJoinPanel,
+  DiagVideoGrid,
+  DiagCallControls,
+  DiagToasts
+} from '@diagvn/video-call-ui-kit-v2'
+import { useVideoCallStoreV2 } from '@diagvn/video-call-core-v2'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter-v2'
+
+const store = useVideoCallStoreV2()
+const isInCall = computed(() => store.callState === 'in_call')
+
+onMounted(async () => {
+  const adapter = createAgoraAdapter({
+    appId: import.meta.env.VITE_AGORA_APP_ID
+  })
+  store.setAdapter(adapter)
+  await store.init()
+})
+
+async function handleJoin(opts: { joinMuted: boolean; joinVideoOff: boolean }) {
+  await store.join({
+    channel: 'my-room',
+    uid: 12345,
+    displayName: 'John',
+    ...opts
+  })
+}
+</script>
+
+<template>
+  <!-- Pre-join -->
+  <DiagPreJoinPanel
+    v-if="!isInCall"
+    :devices="store.devices"
+    @join="handleJoin"
+  />
+
+  <!-- In-call -->
+  <template v-else>
+    <DiagVideoGrid :participants="store.participants" />
+    <DiagCallControls
+      :is-muted="store.isMuted"
+      :is-video-off="store.isVideoOff"
+      @toggle-mic="store.toggleMic"
+      @toggle-cam="store.toggleCam"
+      @leave="store.leave"
+    />
+  </template>
+
+  <DiagToasts :toasts="store.toasts" @dismiss="store.dismissToast" />
+</template>
+```
+
+---
+
+## 🏃 Quick Start (V1 - Legacy)
 
 ### 1. Setup Vue App
 
