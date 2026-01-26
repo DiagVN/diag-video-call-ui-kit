@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-2.0.2-blue.svg)
 ![Vue](https://img.shields.io/badge/vue-3.4+-green.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-5.4+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -23,6 +23,7 @@
 ## 🆕 What's New in v2
 
 - 🎭 **Virtual Background** - Blur, solid color, or custom image backgrounds
+- 🗣️ **Speech-to-Text** - Real-time transcript support with Agora STT integration
 - 🏗️ **Redesigned Architecture** - Cleaner separation of concerns with v2 packages
 - 📝 **Full TypeScript** - Strict typing throughout with better DX
 - ⚡ **Improved Performance** - Optimized video rendering with native video fallback
@@ -33,6 +34,7 @@
 
 - 🎨 **DIAG Brand Styling** - Clean clinical design with DIAG blue gradients, rounded corners, soft shadows
 - 🎭 **Virtual Background** - Blur, color, and image backgrounds with preview/apply workflow
+- 🗣️ **Speech-to-Text** - Real-time transcription with language support (backend integration guide included)
 - 🌍 **i18n Ready** - Built-in Vietnamese and English translations with runtime switching
 - 🔌 **SDK-Agnostic Architecture** - Headless core layer with pluggable adapters (Agora included)
 - 📱 **Responsive** - Mobile-first design that works on all screen sizes
@@ -77,6 +79,7 @@ diag-video-call-ui-kit/
 │   └── playground/            # V1 Demo app
 └── docs/
     ├── VIRTUAL_BACKGROUND_GUIDE.md
+    ├── STT_BACKEND_INTEGRATION.md
     └── SEPARATE_VIEWS_GUIDE.md
 ```
 
@@ -398,7 +401,31 @@ await store.refreshToken(newToken)
 store.dismissToast(id)
 store.dismissError()
 store.destroy()
+
+// Transcript/STT (V2 only)
+await store.startTranscript('en-US')  // Start listening for transcript data
+await store.stopTranscript()           // Stop transcript
+await store.toggleTranscript('vi-VN')  // Toggle with language
+store.clearTranscript()                 // Clear transcript entries
 ```
+
+### Transcript Events (V2)
+
+```ts
+// Listen for transcript entries
+store.eventBus.on('transcript-entry', (entry) => {
+  console.log(`[${entry.participantName}]: ${entry.text}`)
+  // entry.isFinal - true if final, false for interim
+  // entry.confidence - confidence score (0-1)
+})
+
+// Transcript state changes
+store.eventBus.on('transcript-started', ({ language }) => { ... })
+store.eventBus.on('transcript-stopped', () => { ... })
+store.eventBus.on('transcript-error', ({ code, message }) => { ... })
+```
+
+> **Note:** Transcript requires backend integration with Agora Real-time STT. See [STT Backend Integration Guide](./docs/STT_BACKEND_INTEGRATION.md) for setup instructions.
 
 ### Event Bus
 
@@ -545,6 +572,22 @@ import { useI18n } from 'vue-i18n'
 const { locale } = useI18n()
 locale.value = 'en' // Switch to English
 ```
+
+## 📖 Guides
+
+### Virtual Background
+
+For detailed instructions on implementing Virtual Background with preview/apply workflow, see [Virtual Background Guide](./docs/VIRTUAL_BACKGROUND_GUIDE.md).
+
+### Speech-to-Text Integration
+
+Complete guide for integrating Agora Real-time STT with backend implementation examples:
+- [STT Backend Integration Guide](./docs/STT_BACKEND_INTEGRATION.md)
+
+### Separate Views Pattern
+
+Learn how to implement separate Pre-Join and In-Call views with route navigation:
+- [Separate Views Guide](./docs/SEPARATE_VIEWS_GUIDE.md)
 
 ### Available Keys
 

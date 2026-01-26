@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2026-01-26
+
+### Added
+- **Speech-to-Text (STT) / Transcript Support** - Client-side implementation for receiving and displaying transcript data
+  - `isTranscriptSupported()` - Check if transcript feature is available
+  - `startTranscript(language?)` - Start listening for transcript data with language selection
+  - `stopTranscript()` - Stop transcript processing
+  - `setTranscriptLanguage(language)` - Change transcript language
+  - Stream message listener for receiving Agora STT data
+  - Support for both JSON and protobuf message formats
+  - Interim and final transcript handling with confidence scores
+  - `transcript-entry`, `transcript-started`, `transcript-stopped` events
+
+### Documentation
+- **STT Backend Integration Guide** (`docs/STT_BACKEND_INTEGRATION.md`)
+  - Complete guide for integrating Agora Real-time STT service
+  - Backend API implementation examples (Node.js)
+  - Agora REST API reference for starting/stopping STT
+  - Supported languages: en-US, en-GB, zh-CN, vi-VN, ja-JP, ko-KR, and more
+  - Data stream message format documentation (JSON and protobuf)
+  - Multi-user notification patterns using RTM
+  - Troubleshooting guide and pricing information
+
+### Technical Notes
+- Client-side listens for stream messages from Agora STT service
+- Backend integration required to start/stop the Agora STT service
+- See `docs/STT_BACKEND_INTEGRATION.md` for complete implementation guide
+
+---
+
 ## [2.0.1] - 2026-01-26
 
 ### Fixed

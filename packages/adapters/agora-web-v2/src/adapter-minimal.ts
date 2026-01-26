@@ -263,6 +263,11 @@ export class AgoraAdapterV2 implements Actions {
   private denoiserEnabled: boolean = false
   private extensionsInitialized: boolean = false
 
+  // Transcript/STT state
+  private transcriptEnabled: boolean = false
+  private transcriptLanguage: string = 'en-US'
+  private streamMessageListenerBound: boolean = false
+
   // Getters for device IDs (aliases for compatibility)
   private get selectedMicrophoneId(): string { return this.currentMicId }
   private set selectedMicrophoneId(value: string) { this.currentMicId = value }
@@ -2048,6 +2053,243 @@ export class AgoraAdapterV2 implements Actions {
   async stopRecording(): Promise<void> {
     // Recording requires backend API integration
     this.log('WARN: Recording requires backend API integration')
+  }
+
+  // ============================================================================
+  // Transcript/STT Methods
+  // ============================================================================
+
+  /**
+   * Check if transcript/STT is supported.
+   * Client-side support is always available - the actual STT processing
+   * is done by Agora's Real-time STT service which requires backend integration.
+   */
+  isTranscriptSupported(): boolean {
+    // Client-side is always ready to receive stream messages
+    // Backend needs to start the Agora STT service
+    return true
+  }
+
+  /**
+   * Start transcript/STT.
+   * 
+   * IMPORTANT: This method sets up the client-side listener for receiving
+   * transcript data. The actual STT service must be started via your backend
+   * by calling Agora's Real-time STT API.
+   * 
+   * See: docs/STT_BACKEND_INTEGRATION.md for backend setup instructions.
+   * 
+   * @param language - Language code (e.g., 'en-US', 'vi-VN', 'zh-CN')
+   * @returns Promise<boolean> - true if listener was set up successfully
+   */
+  async startTranscript(language?: string): Promise<boolean> {
+    if (!this.rtcClient) {
+      this.log('Cannot start transcript: not connected')
+      this.emitError('TRANSCRIPT_NOT_CONNECTED', 'Must be in a call to start transcript')
+      return false
+    }
+
+    if (this.transcriptEnabled) {
+      this.log('Transcript already enabled')
+      return true
+    }
+
+    const lang = language || this.transcriptLanguage
+    this.transcriptLanguage = lang
+
+    try {
+      // Set up stream message listener if not already bound
+      if (!this.streamMessageListenerBound) {
+        this.setupStreamMessageListener()
+      }
+
+      this.transcriptEnabled = true
+      
+      // Emit transcript started event
+      this.eventBus.emit('transcript-started', { language: lang })
+      
+      this.log(`Transcript listener ready for language: ${lang}`)
+      this.log('NOTE: Backend must call Agora STT API to start the service')
+      
+      return true
+    } catch (error) {
+      this.log('Failed to start transcript:', error)
+      this.eventBus.emit('transcript-error', { 
+        code: 'START_FAILED', 
+        message: String(error) 
+      })
+      return false
+    }
+  }
+
+  /**
+   * Stop transcript/STT.
+   * 
+   * This disables client-side processing of transcript data.
+   * Your backend should also stop the Agora STT service to stop charges.
+   */
+  async stopTranscript(): Promise<void> {
+    if (!this.transcriptEnabled) {
+      return
+    }
+
+    this.transcriptEnabled = false
+    
+    // Emit transcript stopped event
+    this.eventBus.emit('transcript-stopped', undefined)
+    
+    this.log('Transcript stopped')
+    this.log('NOTE: Backend should also stop the Agora STT service')
+  }
+
+  /**
+   * Set transcript language.
+   * 
+   * @param language - Language code (e.g., 'en-US', 'vi-VN', 'zh-CN')
+   */
+  async setTranscriptLanguage(language: string): Promise<void> {
+    const oldLanguage = this.transcriptLanguage
+    this.transcriptLanguage = language
+    
+    this.eventBus.emit('transcript-language-changed', { language })
+    
+    this.log(`Transcript language changed from ${oldLanguage} to ${language}`)
+    this.log('NOTE: Backend should restart STT with the new language')
+  }
+
+  /**
+   * Set up the stream message listener to receive transcript data from Agora STT.
+   * 
+   * Agora's Real-time STT sends transcript data via data stream messages.
+   * The message format is protobuf-encoded (see STT_BACKEND_INTEGRATION.md).
+   */
+  private setupStreamMessageListener(): void {
+    if (!this.rtcClient || this.streamMessageListenerBound) {
+      return
+    }
+
+    // Listen for stream messages (Agora STT sends data via stream-message event)
+    this.rtcClient.on('stream-message', (uid: UID, payload: Uint8Array) => {
+      if (!this.transcriptEnabled) {
+        return
+      }
+
+      try {
+        // Process the STT stream message
+        this.processSTTStreamMessage(uid, payload)
+      } catch (error) {
+        this.log('Error processing STT stream message:', error)
+      }
+    })
+
+    this.streamMessageListenerBound = true
+    this.log('Stream message listener set up for transcript')
+  }
+
+  /**
+   * Process STT stream message from Agora.
+   * 
+   * The payload is protobuf-encoded. For production use, you should use
+   * the protobuf schema from Agora's STT documentation.
+   * 
+   * Simplified parsing is provided here for common cases.
+   * See STT_BACKEND_INTEGRATION.md for the full protobuf schema.
+   */
+  private processSTTStreamMessage(uid: UID, payload: Uint8Array): void {
+    try {
+      // Try to parse as JSON first (some STT implementations use JSON)
+      const text = new TextDecoder().decode(payload)
+      
+      // Check if it looks like JSON
+      if (text.startsWith('{')) {
+        const data = JSON.parse(text)
+        this.handleTranscriptData(uid, data)
+        return
+      }
+      
+      // For protobuf data, emit raw data and let the app handle decoding
+      // Apps integrating with Agora STT should use the official protobuf schema
+      this.log('Received binary STT data from uid:', uid, 'length:', payload.length)
+      
+      // Emit a special event for raw STT data that apps can decode
+      this.eventBus.emit('rtm-message' as keyof EventMap, {
+        senderId: String(uid),
+        message: '',
+        messageType: 'stt-raw',
+        payload: payload
+      } as unknown as EventMap[keyof EventMap])
+      
+    } catch (error) {
+      this.log('Failed to process STT message:', error)
+    }
+  }
+
+  /**
+   * Handle parsed transcript data and emit transcript-entry events.
+   */
+  private handleTranscriptData(uid: UID, data: {
+    text?: string;
+    words?: Array<{ text: string; isFinal?: boolean; confidence?: number }>;
+    isFinal?: boolean;
+    language?: string;
+  }): void {
+    const participant = this.remoteUsers.get(uid as number)
+    const participantName = participant ? String(uid) : 'Unknown'
+    
+    // Handle word-based format (Agora STT)
+    if (data.words && Array.isArray(data.words)) {
+      let finalText = ''
+      let interimText = ''
+      let maxConfidence = 0
+      
+      for (const word of data.words) {
+        if (word.isFinal) {
+          finalText += word.text
+          maxConfidence = Math.max(maxConfidence, word.confidence || 0)
+        } else {
+          interimText += word.text
+        }
+      }
+      
+      // Emit final text if available
+      if (finalText) {
+        this.eventBus.emit('transcript-entry', {
+          id: `${uid}-${Date.now()}-final`,
+          participantId: String(uid),
+          participantName,
+          text: finalText.trim(),
+          isFinal: true,
+          timestamp: Date.now(),
+          language: data.language || this.transcriptLanguage,
+          confidence: maxConfidence
+        })
+      }
+      
+      // Emit interim text if available
+      if (interimText) {
+        this.eventBus.emit('transcript-entry', {
+          id: `${uid}-interim`,
+          participantId: String(uid),
+          participantName,
+          text: interimText.trim(),
+          isFinal: false,
+          timestamp: Date.now(),
+          language: data.language || this.transcriptLanguage
+        })
+      }
+    }
+    // Handle simple text format
+    else if (data.text) {
+      this.eventBus.emit('transcript-entry', {
+        id: `${uid}-${Date.now()}`,
+        participantId: String(uid),
+        participantName,
+        text: data.text,
+        isFinal: data.isFinal !== false,
+        timestamp: Date.now(),
+        language: data.language || this.transcriptLanguage
+      })
+    }
   }
 
   // ============================================================================
