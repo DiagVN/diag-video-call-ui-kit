@@ -142,7 +142,8 @@ export const messages = {
         raiseHand: 'Raise Hand',
         lowerHand: 'Lower Hand',
         switchCamera: 'Switch Camera',
-        apply: 'Apply'
+        apply: 'Apply',
+        cancel: 'Cancel'
       },
       // Status
       status: {
@@ -349,7 +350,8 @@ export const messages = {
         raiseHand: 'Giơ tay',
         lowerHand: 'Hạ tay',
         switchCamera: 'Đổi camera',
-        apply: 'Áp dụng'
+        apply: 'Áp dụng',
+        cancel: 'Hủy'
       },
       // Trạng thái
       status: {
