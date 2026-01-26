@@ -24,45 +24,176 @@ The UI Kit provides the client-side implementation. You need to implement the ba
                            (via Agora RTC SDK)
 ```
 
-## Client-Side Usage
+## Client-Side Usage (V2)
 
-### Starting Transcript
+### Quick Start - Simple View
 
-```typescript
-import { useVideoCallStore } from '@diagvn/video-call-ui-kit-v2'
+For the simplest integration using `DiagVideoCallV2`:
 
-const store = useVideoCallStore()
+```vue
+<script setup lang="ts">
+import { DiagVideoCallV2 } from '@diagvn/video-call-ui-kit-v2'
+import { useVideoCallStoreV2 } from '@diagvn/video-call-core-v2'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter-v2'
+import { onMounted } from 'vue'
 
-// Start listening for transcript data
-await store.startTranscript('en-US')
+const store = useVideoCallStoreV2()
 
-// Your app should also call your backend API to start the STT service
-await yourBackendApi.startSTT({
-  channelName: store.channelName,
-  language: 'en-US'
+// Your backend API
+const sttApi = {
+  start: (channel: string, language: string) => 
+    fetch('/api/stt/start', { 
+      method: 'POST', 
+      body: JSON.stringify({ channelName: channel, language }) 
+    }),
+  stop: (channel: string) => 
+    fetch('/api/stt/stop', { 
+      method: 'POST', 
+      body: JSON.stringify({ channelName: channel }) 
+    })
+}
+
+onMounted(async () => {
+  const adapter = createAgoraAdapter({
+    appId: import.meta.env.VITE_AGORA_APP_ID
+  })
+  store.setAdapter(adapter)
+  await store.init()
 })
+
+// Handle transcript toggle from UI
+async function handleToggleTranscript() {
+  const channel = store.channelName
+  if (!channel) return
+
+  if (store.transcriptState.enabled) {
+    await sttApi.stop(channel)
+    await store.stopTranscript()
+  } else {
+    await sttApi.start(channel, 'vi-VN')
+    await store.startTranscript('vi-VN')
+  }
+}
+</script>
+
+<template>
+  <DiagVideoCallV2
+    :channel="'my-room'"
+    :uid="12345"
+    :display-name="'John'"
+    :show-transcript="true"
+    @toggle-transcript="handleToggleTranscript"
+  />
+</template>
 ```
 
-### Stopping Transcript
+### Compose View - Manual Control
+
+For custom views with individual components:
+
+```vue
+<script setup lang="ts">
+import { computed, onMounted } from 'vue'
+import {
+  DiagVideoGridV2,
+  DiagCallControlsV2,
+  DiagTranscriptPanelV2
+} from '@diagvn/video-call-ui-kit-v2'
+import { useVideoCallStoreV2 } from '@diagvn/video-call-core-v2'
+import { createAgoraAdapter } from '@diagvn/agora-web-adapter-v2'
+
+const store = useVideoCallStoreV2()
+const showTranscriptPanel = computed(() => store.transcriptState.enabled)
+
+onMounted(async () => {
+  const adapter = createAgoraAdapter({
+    appId: import.meta.env.VITE_AGORA_APP_ID
+  })
+  store.setAdapter(adapter)
+  await store.init()
+})
+
+// Your backend API calls
+async function startSTT(language = 'vi-VN') {
+  await fetch('/api/stt/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+      channelName: store.channelName, 
+      language 
+    })
+  })
+  await store.startTranscript(language)
+}
+
+async function stopSTT() {
+  await fetch('/api/stt/stop', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ channelName: store.channelName })
+  })
+  await store.stopTranscript()
+}
+</script>
+
+<template>
+  <div class="call-container">
+    <DiagVideoGridV2 :participants="store.participants" />
+
+    <DiagTranscriptPanelV2
+      v-if="showTranscriptPanel"
+      :entries="store.transcriptState.entries"
+      :is-active="store.transcriptState.enabled"
+      @close="stopSTT"
+      @clear="store.clearTranscript"
+    />
+
+    <DiagCallControlsV2
+      :is-muted="store.isMuted"
+      :is-video-off="store.isVideoOff"
+      :is-transcript-enabled="store.transcriptState.enabled"
+      @toggle-mic="store.toggleMic"
+      @toggle-cam="store.toggleCam"
+      @toggle-transcript="store.transcriptState.enabled ? stopSTT() : startSTT()"
+      @leave="store.leave"
+    />
+  </div>
+</template>
+```
+
+### Store Methods Reference
 
 ```typescript
-// Stop listening for transcript data
-await store.stopTranscript()
+import { useVideoCallStoreV2 } from '@diagvn/video-call-core-v2'
 
-// Your app should also call your backend API to stop the STT service
-await yourBackendApi.stopSTT({
-  channelName: store.channelName
-})
+const store = useVideoCallStoreV2()
+
+// State (readonly)
+store.transcriptState.enabled   // boolean - is STT active
+store.transcriptState.language  // string - current language (e.g., 'vi-VN')
+store.transcriptState.entries   // TranscriptEntry[] - transcript history
+
+// Actions
+await store.startTranscript('vi-VN')  // Start listening for transcript data
+await store.stopTranscript()           // Stop listening
+await store.toggleTranscript('vi-VN')  // Toggle on/off
+store.clearTranscript()                 // Clear transcript entries
 ```
 
 ### Listening for Transcript Events
 
 ```typescript
+import { useVideoCallStoreV2 } from '@diagvn/video-call-core-v2'
+
+const store = useVideoCallStoreV2()
+
 // Subscribe to transcript entries
 store.eventBus.on('transcript-entry', (entry) => {
-  console.log(`[${entry.participantName}]: ${entry.text}`)
+  console.log(`[${entry.speakerName}]: ${entry.text}`)
   // entry.isFinal - true if this is a final transcript, false for interim
   // entry.confidence - confidence score (0-1) for the transcription
+  // entry.language - detected/set language
+  // entry.timestamp - when the entry was received
 })
 
 // Subscribe to transcript state changes
@@ -77,6 +208,26 @@ store.eventBus.on('transcript-stopped', () => {
 store.eventBus.on('transcript-error', ({ code, message }) => {
   console.error('Transcript error:', code, message)
 })
+
+store.eventBus.on('transcript-language-changed', ({ language }) => {
+  console.log('Language changed to:', language)
+})
+```
+
+### TranscriptEntry Type
+
+```typescript
+interface TranscriptEntry {
+  id: string           // Unique ID
+  speakerName: string  // Speaker's display name
+  speakerId: string    // Speaker's UID
+  text: string         // Transcribed text
+  isFinal: boolean     // Final vs interim result
+  confidence?: number  // 0-1 confidence score
+  language?: string    // Language code (e.g., 'vi-VN')
+  timestamp: number    // Unix timestamp
+  isLocal?: boolean    // Is from local user
+}
 ```
 
 ## Backend Implementation
