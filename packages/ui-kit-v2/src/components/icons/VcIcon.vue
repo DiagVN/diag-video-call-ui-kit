@@ -10,6 +10,7 @@ export type IconName =
   | 'mic-on' | 'mic-off'
   | 'camera-on' | 'camera-off'
   | 'screen-share' | 'stop-share'
+  | 'switch-camera'
   | 'pin' | 'unpin'
   | 'hand-raised'
   | 'close'
@@ -53,6 +54,7 @@ const iconMap: Record<IconName, string> = {
   'camera-off': icons.CameraOffIcon,
   'screen-share': icons.ScreenShareIcon,
   'stop-share': icons.StopShareIcon,
+  'switch-camera': icons.SwitchCameraIcon,
   'pin': icons.PinIcon,
   'unpin': icons.UnpinIcon,
   'hand-raised': icons.HandRaisedIcon,

@@ -18,6 +18,9 @@ export const ScreenShareIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="2
 
 export const StopShareIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21.22 18.02l2 2L24 19.2l-2-1.99 1.22-.78-2-2L24 12.65l-2-1.99L24 8.87l-2-1.99 2-1.22-2-2L2 19.2l.78 1.22 18.44-.4zM4 6h10.17l2 2H4v8h8l-4-4h3V9h2v3h1.17l2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg>`
 
+// Switch camera icon (for mobile)
+export const SwitchCameraIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9.5 18.5v-2.5h5v2.5l3.5-3.5-3.5-3.5v2.5h-5v-2.5l-3.5 3.5 3.5 3.5zm11-11c0-1.1-.9-2-2-2h-3.17l-1.83-2h-5l-1.83 2H4.5c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-9zM12 15c-1.93 0-3.5-1.57-3.5-3.5S10.07 8 12 8s3.5 1.57 3.5 3.5S13.93 15 12 15z"/></svg>`
+
 // Pin icon
 export const PinIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`
 

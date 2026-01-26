@@ -11,13 +11,13 @@
       <button
         v-if="features.audioToggle !== false"
         class="vc-controls__btn"
-        :class="{ 'vc-controls__btn--muted': !isAudioEnabled }"
-        :title="isAudioEnabled ? $t('vc.action.mute') : $t('vc.action.unmute')"
-        @click="$emit('toggle-audio')"
+        :class="{ 'vc-controls__btn--muted': !audioEnabled }"
+        :title="audioEnabled ? $t('vc.action.mute') : $t('vc.action.unmute')"
+        @click="handleToggleAudio"
       >
-        <VcIcon :name="isAudioEnabled ? 'mic-on' : 'mic-off'" class="vc-controls__icon" />
+        <VcIcon :name="audioEnabled ? 'mic-on' : 'mic-off'" class="vc-controls__icon" />
         <span v-if="showLabels" class="vc-controls__label">
-          {{ isAudioEnabled ? $t('vc.action.mute') : $t('vc.action.unmute') }}
+          {{ audioEnabled ? $t('vc.action.mute') : $t('vc.action.unmute') }}
         </span>
       </button>
 
@@ -25,14 +25,25 @@
       <button
         v-if="features.videoToggle !== false"
         class="vc-controls__btn"
-        :class="{ 'vc-controls__btn--muted': !isVideoEnabled }"
-        :title="isVideoEnabled ? $t('vc.action.stopVideo') : $t('vc.action.startVideo')"
-        @click="$emit('toggle-video')"
+        :class="{ 'vc-controls__btn--muted': !videoEnabled }"
+        :title="videoEnabled ? $t('vc.action.stopVideo') : $t('vc.action.startVideo')"
+        @click="handleToggleVideo"
       >
-        <VcIcon :name="isVideoEnabled ? 'camera-on' : 'camera-off'" class="vc-controls__icon" />
+        <VcIcon :name="videoEnabled ? 'camera-on' : 'camera-off'" class="vc-controls__icon" />
         <span v-if="showLabels" class="vc-controls__label">
-          {{ isVideoEnabled ? $t('vc.action.stopVideo') : $t('vc.action.startVideo') }}
+          {{ videoEnabled ? $t('vc.action.stopVideo') : $t('vc.action.startVideo') }}
         </span>
+      </button>
+
+      <!-- Switch Camera (mobile) -->
+      <button
+        v-if="showSwitchCamera"
+        class="vc-controls__btn"
+        :title="$t('vc.action.switchCamera')"
+        @click="$emit('switch-camera')"
+      >
+        <VcIcon name="switch-camera" class="vc-controls__icon" />
+        <span v-if="showLabels" class="vc-controls__label">{{ $t('vc.action.switchCamera') }}</span>
       </button>
 
       <!-- Screen share -->
@@ -49,6 +60,34 @@
         </span>
       </button>
 
+      <!-- Transcript toggle -->
+      <button
+        v-if="features.transcript"
+        class="vc-controls__btn"
+        :class="{ 'vc-controls__btn--active': isTranscriptEnabled }"
+        :title="isTranscriptEnabled ? $t('vc.action.stopTranscript') : $t('vc.action.startTranscript')"
+        @click="$emit('toggle-transcript')"
+      >
+        <VcIcon name="document" class="vc-controls__icon" />
+        <span v-if="showLabels" class="vc-controls__label">
+          {{ isTranscriptEnabled ? $t('vc.action.stopTranscript') : $t('vc.action.startTranscript') }}
+        </span>
+      </button>
+
+      <!-- Hand raise -->
+      <button
+        v-if="features.handRaise"
+        class="vc-controls__btn"
+        :class="{ 'vc-controls__btn--active': isHandRaised }"
+        :title="isHandRaised ? $t('vc.action.lowerHand') : $t('vc.action.raiseHand')"
+        @click="$emit('toggle-hand')"
+      >
+        <VcIcon name="hand-raised" class="vc-controls__icon" />
+        <span v-if="showLabels" class="vc-controls__label">
+          {{ isHandRaised ? $t('vc.action.lowerHand') : $t('vc.action.raiseHand') }}
+        </span>
+      </button>
+
       <!-- Chat toggle -->
       <button
         v-if="features.chat"
@@ -59,7 +98,7 @@
       >
         <VcIcon name="chat" class="vc-controls__icon" />
         <span v-if="showLabels" class="vc-controls__label">{{ $t('vc.action.chat') }}</span>
-        <span v-if="unreadMessages > 0" class="vc-controls__badge">{{ unreadMessages }}</span>
+        <span v-if="unreadCount > 0" class="vc-controls__badge">{{ unreadCount }}</span>
       </button>
 
       <!-- Participants toggle -->
@@ -80,7 +119,7 @@
           class="vc-controls__btn"
           :class="{ 'vc-controls__btn--active': isMoreOpen }"
           :title="$t('vc.action.more')"
-          @click="isMoreOpen = !isMoreOpen"
+          @click="handleToggleMore"
         >
           <VcIcon name="more" class="vc-controls__icon" />
         </button>
@@ -196,34 +235,53 @@ import type { FeatureFlags, LayoutMode } from '@diagvn/video-call-core-v2'
 import VcIcon from './icons/VcIcon.vue'
 
 export interface DiagCallControlsV2Props {
+  /** @deprecated Use isMuted instead */
   isAudioEnabled?: boolean
+  /** @deprecated Use isVideoOff instead */
   isVideoEnabled?: boolean
+  /** Audio is muted */
+  isMuted?: boolean
+  /** Video is off */
+  isVideoOff?: boolean
   isScreenSharing?: boolean
   isRecording?: boolean
   isLiveStreaming?: boolean
   isNoiseSuppressionEnabled?: boolean
+  isTranscriptEnabled?: boolean
   isChatOpen?: boolean
   isParticipantsOpen?: boolean
   isFullscreen?: boolean
+  isHandRaised?: boolean
   layout?: LayoutMode
   participantCount?: number
   unreadMessages?: number
+  /** @deprecated Use unreadMessages instead */
+  unreadChatCount?: number
   features?: Partial<FeatureFlags>
   showLabels?: boolean
+  showSwitchCamera?: boolean
   position?: 'bottom' | 'top' | 'floating'
 }
 
 export interface DiagCallControlsV2Emits {
+  /** @deprecated Use toggle-mic instead */
   (e: 'toggle-audio'): void
+  /** @deprecated Use toggle-cam instead */
   (e: 'toggle-video'): void
+  (e: 'toggle-mic'): void
+  (e: 'toggle-cam'): void
+  (e: 'switch-camera'): void
   (e: 'toggle-screen-share'): void
   (e: 'toggle-chat'): void
   (e: 'toggle-participants'): void
   (e: 'toggle-recording'): void
   (e: 'toggle-live-stream'): void
   (e: 'toggle-noise-suppression'): void
+  (e: 'toggle-transcript'): void
+  (e: 'toggle-hand'): void
   (e: 'toggle-layout'): void
   (e: 'toggle-fullscreen'): void
+  (e: 'toggle-more'): void
   (e: 'open-settings'): void
   (e: 'open-virtual-background'): void
   (e: 'open-beauty-effects'): void
@@ -233,16 +291,21 @@ export interface DiagCallControlsV2Emits {
 const props = withDefaults(defineProps<DiagCallControlsV2Props>(), {
   isAudioEnabled: true,
   isVideoEnabled: true,
+  isMuted: false,
+  isVideoOff: false,
   isScreenSharing: false,
   isRecording: false,
   isLiveStreaming: false,
   isNoiseSuppressionEnabled: false,
+  isTranscriptEnabled: false,
   isChatOpen: false,
   isParticipantsOpen: false,
   isFullscreen: false,
+  isHandRaised: false,
   layout: 'grid',
   participantCount: 0,
   unreadMessages: 0,
+  unreadChatCount: 0,
   features: () => ({
     audioToggle: true,
     videoToggle: true,
@@ -254,19 +317,43 @@ const props = withDefaults(defineProps<DiagCallControlsV2Props>(), {
     virtualBackground: false,
     beautyEffects: false,
     noiseSuppression: false,
+    transcript: false,
+    handRaise: false,
     layoutToggle: true,
     fullscreen: true
   }),
   showLabels: false,
+  showSwitchCamera: false,
   position: 'bottom'
 })
 
-defineEmits<DiagCallControlsV2Emits>()
+const emit = defineEmits<DiagCallControlsV2Emits>()
 
 // State
 const isMoreOpen = ref(false)
 
-// Computed
+// Computed - Support both old (isAudioEnabled) and new (isMuted) props
+const audioEnabled = computed(() => {
+  // If isMuted is explicitly set (not default), use it inverted
+  if (props.isMuted !== false) {
+    return !props.isMuted
+  }
+  // Otherwise use legacy prop
+  return props.isAudioEnabled
+})
+
+const videoEnabled = computed(() => {
+  // If isVideoOff is explicitly set (not default), use it inverted
+  if (props.isVideoOff !== false) {
+    return !props.isVideoOff
+  }
+  // Otherwise use legacy prop
+  return props.isVideoEnabled
+})
+
+// Support both unreadMessages and unreadChatCount
+const unreadCount = computed(() => props.unreadMessages || props.unreadChatCount || 0)
+
 const controlsClasses = computed(() => [
   `vc-controls--${props.position}`
 ])
@@ -278,6 +365,22 @@ const hasMoreOptions = computed(() =>
   props.features.beautyEffects ||
   props.features.noiseSuppression
 )
+
+// Handlers - emit both old and new event names for compatibility
+function handleToggleAudio() {
+  emit('toggle-audio')
+  emit('toggle-mic')
+}
+
+function handleToggleVideo() {
+  emit('toggle-video')
+  emit('toggle-cam')
+}
+
+function handleToggleMore() {
+  isMoreOpen.value = !isMoreOpen.value
+  emit('toggle-more')
+}
 </script>
 
 <style scoped>

@@ -138,6 +138,7 @@ export const messages = {
         stopTranscript: 'Stop Transcription',
         raiseHand: 'Raise Hand',
         lowerHand: 'Lower Hand',
+        switchCamera: 'Switch Camera',
         apply: 'Apply'
       },
       // Status
@@ -338,6 +339,7 @@ export const messages = {
         stopTranscript: 'Dừng ghi chép',
         raiseHand: 'Giơ tay',
         lowerHand: 'Hạ tay',
+        switchCamera: 'Đổi camera',
         apply: 'Áp dụng'
       },
       // Trạng thái
