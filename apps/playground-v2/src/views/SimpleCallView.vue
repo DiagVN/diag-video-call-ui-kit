@@ -106,11 +106,12 @@ watch(
 
     try {
       if (enabled) {
-        // Start STT via Agora REST API
+        // Start STT via Agora REST API using the language selected in the language selector
+        const selectedLanguage = store.transcriptState?.language || 'en-US';
         await sttApi.startStt({
           channelName: channelName.value,
           uid: '999999', // Dedicated bot UID
-          language: 'vi-VN'
+          language: selectedLanguage
         });
       } else {
         // Stop STT

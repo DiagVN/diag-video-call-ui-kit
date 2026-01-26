@@ -19,6 +19,7 @@ export { default as DiagCallEndedV2 } from './components/DiagCallEndedV2.vue'
 export { default as DiagToastsV2 } from './components/DiagToastsV2.vue'
 export { default as DiagBannerV2 } from './components/DiagBannerV2.vue'
 export { default as DiagTranscriptPanelV2 } from './components/DiagTranscriptPanelV2.vue'
+export { default as DiagLanguageSelectorV2 } from './components/DiagLanguageSelectorV2.vue'
 
 // Types
 export type { DiagVideoCallV2Props, DiagVideoCallV2Emits } from './components/DiagVideoCallV2.vue'
@@ -36,6 +37,7 @@ export type { DiagCallEndedV2Props, DiagCallEndedV2Emits, CallStats } from './co
 export type { DiagToastsV2Props, DiagToastsV2Emits, Toast, ToastType } from './components/DiagToastsV2.vue'
 export type { DiagBannerV2Props, DiagBannerV2Emits, BannerType, BannerPosition, BannerAction } from './components/DiagBannerV2.vue'
 export type { DiagTranscriptPanelV2Props, DiagTranscriptPanelV2Emits } from './components/DiagTranscriptPanelV2.vue'
+export type { DiagLanguageSelectorV2Props, DiagLanguageSelectorV2Emits } from './components/DiagLanguageSelectorV2.vue'
 
 // i18n
 export { messages } from './i18n/messages'

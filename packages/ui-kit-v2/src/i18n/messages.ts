@@ -45,7 +45,9 @@ export const messages = {
         waitingRoom: 'Waiting Room',
         inCall: 'In Call',
         transcript: 'Transcript',
-        recording: 'Recording'
+        recording: 'Recording',
+        selectLanguage: 'Select Language',
+        changeLanguage: 'Change Language'
       },
       // Labels
       label: {
@@ -84,7 +86,8 @@ export const messages = {
         joinWithAudio: 'Join with audio',
         joinWithVideo: 'Join with video',
         joinMuted: 'Join with microphone muted',
-        joinVideoOff: 'Join with camera off'
+        joinVideoOff: 'Join with camera off',
+        transcriptLanguage: 'Transcription Language'
       },
       // Actions
       action: {
@@ -154,7 +157,8 @@ export const messages = {
         live: 'LIVE',
         encrypted: 'Encrypted',
         transcriptOff: 'Transcription is off',
-        transcribing: 'Transcribing'
+        transcribing: 'Transcribing',
+        startingTranscript: 'Starting transcription...'
       },
       // Messages
       message: {
@@ -174,7 +178,9 @@ export const messages = {
         screenShareStarted: '{name} started sharing screen',
         screenShareStopped: '{name} stopped sharing screen',
         networkUnstable: 'Your network connection is unstable',
-        poorConnection: 'Poor connection quality'
+        poorConnection: 'Poor connection quality',
+        selectLanguageHint: 'Choose the language for speech-to-text transcription',
+        languageInfo: 'The transcript will be generated in the selected language. All participants will see the same transcript.'
       },
       // Placeholders
       placeholder: {
@@ -246,7 +252,9 @@ export const messages = {
         waitingRoom: 'Phòng chờ',
         inCall: 'Trong cuộc gọi',
         transcript: 'Bản ghi',
-        recording: 'Ghi âm'
+        recording: 'Ghi âm',
+        selectLanguage: 'Chọn ngôn ngữ',
+        changeLanguage: 'Đổi ngôn ngữ'
       },
       // Nhãn
       label: {
@@ -285,7 +293,8 @@ export const messages = {
         joinWithAudio: 'Tham gia với âm thanh',
         joinWithVideo: 'Tham gia với video',
         joinMuted: 'Tham gia với micro tắt',
-        joinVideoOff: 'Tham gia với camera tắt'
+        joinVideoOff: 'Tham gia với camera tắt',
+        transcriptLanguage: 'Ngôn ngữ phiên âm'
       },
       // Hành động
       action: {
@@ -355,7 +364,8 @@ export const messages = {
         live: 'TRỰC TIẾP',
         encrypted: 'Đã mã hóa',
         transcriptOff: 'Chức năng ghi chép đang tắt',
-        transcribing: 'Đang ghi chép'
+        transcribing: 'Đang ghi chép',
+        startingTranscript: 'Đang khởi tạo phiên âm...'
       },
       // Thông báo
       message: {
@@ -375,7 +385,9 @@ export const messages = {
         screenShareStarted: '{name} đã bắt đầu chia sẻ màn hình',
         screenShareStopped: '{name} đã dừng chia sẻ màn hình',
         networkUnstable: 'Kết nối mạng của bạn không ổn định',
-        poorConnection: 'Chất lượng kết nối kém'
+        poorConnection: 'Chất lượng kết nối kém',
+        selectLanguageHint: 'Chọn ngôn ngữ để phiên âm cuộc gọi',
+        languageInfo: 'Bản phiên âm sẽ được tạo bằng ngôn ngữ đã chọn. Tất cả người tham gia sẽ thấy cùng một bản phiên âm.'
       },
       // Placeholder
       placeholder: {

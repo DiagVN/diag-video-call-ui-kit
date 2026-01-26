@@ -98,7 +98,7 @@
               @switch-camera="store.switchCamera"
               @toggle-screen-share="store.toggleScreenShare"
               @toggle-recording="handleToggleRecording"
-              @toggle-transcript="store.toggleTranscript"
+              @toggle-transcript="handleToggleTranscript"
               @toggle-chat="store.toggleChat"
               @toggle-participants="store.toggleParticipants"
               @toggle-hand="store.toggleHandRaised"
@@ -223,11 +223,21 @@
       @retry="emit('retry')"
       @dismiss="store.dismissError"
     />
+
+    <!-- Language Selector Modal -->
+    <DiagLanguageSelectorV2
+      v-model="showLanguageSelector"
+      :selected-language="selectedTranscriptLanguage"
+      :is-first-time="!store.transcriptState.language || store.transcriptState.language === 'en-US'"
+      :is-loading="isStartingTranscript"
+      @confirm="handleLanguageConfirm"
+      @cancel="handleLanguageCancel"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, onUnmounted, provide } from 'vue'
+import { computed, watch, onMounted, onUnmounted, provide, ref } from 'vue'
 import { useVideoCallStoreV2 } from '@diagvn/video-call-core-v2'
 import type { FeatureFlags, JoinOptions, DeviceSelection, RecordingConfig, VirtualBackgroundConfig } from '@diagvn/video-call-core-v2'
 
@@ -247,6 +257,7 @@ import DiagTranscriptPanelV2 from './DiagTranscriptPanelV2.vue'
 import DiagRecordingIndicatorV2 from './DiagRecordingIndicatorV2.vue'
 import DiagCallEndedV2 from './DiagCallEndedV2.vue'
 import DiagCallErrorV2 from './DiagCallErrorV2.vue'
+import DiagLanguageSelectorV2 from './DiagLanguageSelectorV2.vue'
 
 export interface DiagVideoCallV2Props {
   /** Theme */
@@ -299,6 +310,11 @@ const store = useVideoCallStoreV2()
 
 // Provide store to child components
 provide('videoCallStore', store)
+
+// Language selector state
+const showLanguageSelector = ref(false)
+const isStartingTranscript = ref(false)
+const selectedTranscriptLanguage = ref('en-US')
 
 // Computed
 const rootClasses = computed(() => ({
@@ -362,6 +378,43 @@ function handleBeautyEnabledChange(enabled: boolean) {
   } else {
     store.disableBeautyEffect()
   }
+}
+
+// Handle transcript toggle - show language selector for first time
+function handleToggleTranscript() {
+  if (store.transcriptState.enabled) {
+    // Transcript is active, just stop it
+    store.stopTranscript()
+  } else {
+    // Transcript not active, show language selector first
+    showLanguageSelector.value = true
+  }
+}
+
+// Handle language selection confirm
+async function handleLanguageConfirm(language: string) {
+  selectedTranscriptLanguage.value = language
+  isStartingTranscript.value = true
+  
+  try {
+    await store.startTranscript(language)
+    showLanguageSelector.value = false
+  } catch (error) {
+    console.error('[DiagVideoCallV2] Failed to start transcript:', error)
+    store.addToast({
+      id: 'transcript-error',
+      type: 'error',
+      messageKey: 'vc.err.transcriptError',
+      duration: 5000
+    })
+  } finally {
+    isStartingTranscript.value = false
+  }
+}
+
+// Handle language selector cancel
+function handleLanguageCancel() {
+  showLanguageSelector.value = false
 }
 
 // Auto-hide controls
