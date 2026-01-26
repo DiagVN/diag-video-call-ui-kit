@@ -1,15 +1,16 @@
 {
   "name": "@diagvn/video-call-core-v2",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Video Call Core v2 - Comprehensive state management and types for video calling with full Agora feature support",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [

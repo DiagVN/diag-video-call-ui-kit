@@ -5,7 +5,8 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [
     dts({
-      insertTypesEntry: true
+      include: ['src'],
+      exclude: ['src/**/*.spec.ts']
     })
   ],
   build: {
@@ -13,16 +14,20 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'DiagAgoraAdapterV2',
       formats: ['es', 'cjs'],
-      fileName: (format) => format === 'es' ? 'index.mjs' : 'index.js'
+      fileName: format => `index.${format === 'es' ? 'js' : 'cjs'}`
     },
     rollupOptions: {
       external: [
         'agora-rtc-sdk-ng',
         'agora-rtm-sdk',
         '@diagvn/video-call-core-v2'
-      ]
-    },
-    sourcemap: true,
-    minify: false
+      ],
+      output: {
+        globals: {
+          'agora-rtc-sdk-ng': 'AgoraRTC',
+          'agora-rtm-sdk': 'AgoraRTM'
+        }
+      }
+    }
   }
 })

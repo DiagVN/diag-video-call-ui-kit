@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.7] - 2026-01-26
+
+### Fixed
+- **Build configuration alignment** - Updated v2 packages build setup to match v1
+  - Added CommonJS (`.cjs`) output format alongside ESM (`.js`)
+  - Fixed package.json exports with proper `import`/`require` conditions
+  - Aligned vite.config.ts with v1 dts plugin configuration
+  - Consistent file naming: `index.js` (ESM) and `index.cjs` (CommonJS)
+
+---
+
 ## [2.0.6] - 2026-01-26
 
 ### Changed

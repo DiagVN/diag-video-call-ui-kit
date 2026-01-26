@@ -1,14 +1,14 @@
 {
   "name": "@diagvn/agora-web-adapter-v2",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Agora Web SDK adapter for DiagVN Video Call UI Kit V2 - Full feature support",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     }
   },

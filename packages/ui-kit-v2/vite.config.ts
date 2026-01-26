@@ -7,16 +7,16 @@ export default defineConfig({
   plugins: [
     vue(),
     dts({
-      include: ['src/**/*.ts', 'src/**/*.vue'],
-      outDir: 'dist'
+      include: ['src'],
+      exclude: ['src/**/*.spec.ts']
     })
   ],
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'VideoCallUIKitV2',
-      formats: ['es'],
-      fileName: 'index'
+      formats: ['es', 'cjs'],
+      fileName: format => `index.${format === 'es' ? 'js' : 'cjs'}`
     },
     rollupOptions: {
       external: ['vue', 'pinia', 'vue-i18n', '@diagvn/video-call-core-v2'],
@@ -27,11 +27,12 @@ export default defineConfig({
           'vue-i18n': 'VueI18n',
           '@diagvn/video-call-core-v2': 'VideoCallCoreV2'
         },
-        assetFileNames: 'styles/[name][extname]'
+        assetFileNames: assetInfo => {
+          if (assetInfo.name === 'style.css') return 'style.css'
+          return assetInfo.name || ''
+        }
       }
     },
-    cssCodeSplit: false,
-    sourcemap: true,
-    minify: false
+    cssCodeSplit: false
   }
 })

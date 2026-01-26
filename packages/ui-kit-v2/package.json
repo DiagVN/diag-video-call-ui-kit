@@ -1,15 +1,16 @@
 {
   "name": "@diagvn/video-call-ui-kit-v2",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Video Call UI Kit v2 - Comprehensive Vue 3 components for video calling with full feature support",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
     },
     "./styles/*": "./dist/styles/*"
   },
