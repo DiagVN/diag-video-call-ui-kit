@@ -330,8 +330,8 @@ importers:
         specifier: ^3.4.0
         version: 3.5.27(typescript@5.5.4)
       vue-i18n:
-        specifier: ^9.9.0
-        version: 9.14.5(vue@3.5.27)
+        specifier: ^11.2.8
+        version: 11.2.8(vue@3.5.27)
       vue-tsc:
         specifier: ^1.8.0
         version: 1.8.27(typescript@5.5.4)
@@ -758,6 +758,7 @@ packages:
     dependencies:
       '@intlify/message-compiler': 9.14.5
       '@intlify/shared': 9.14.5
+    dev: false
 
   /@intlify/message-compiler@11.2.8:
     resolution: {integrity: sha512-A5n33doOjmHsBtCN421386cG1tWp5rpOjOYPNsnpjIJbQ4POF0QY2ezhZR9kr0boKwaHjbOifvyQvHj2UTrDFQ==}
@@ -772,6 +773,7 @@ packages:
     dependencies:
       '@intlify/shared': 9.14.5
       source-map-js: 1.2.1
+    dev: false
 
   /@intlify/shared@11.2.8:
     resolution: {integrity: sha512-l6e4NZyUgv8VyXXH4DbuucFOBmxLF56C/mqh2tvApbzl2Hrhi1aTDcuv5TKdxzfHYmpO3UB0Cz04fgDT9vszfw==}
@@ -780,6 +782,7 @@ packages:
   /@intlify/shared@9.14.5:
     resolution: {integrity: sha512-9gB+E53BYuAEMhbCAxVgG38EZrk59sxBtv3jSizNL2hEWlgjBjAw1AwpLHtNaeda12pe6W20OGEa0TwuMSRbyQ==}
     engines: {node: '>= 16'}
+    dev: false
 
   /@isaacs/balanced-match@4.0.1:
     resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
@@ -3955,6 +3958,7 @@ packages:
       '@intlify/shared': 9.14.5
       '@vue/devtools-api': 6.6.4
       vue: 3.5.27(typescript@5.4.5)
+    dev: false
 
   /vue-router@4.6.4(vue@3.5.27):
     resolution: {integrity: sha512-Hz9q5sa33Yhduglwz6g9skT8OBPii+4bFn88w6J+J4MfEo4KRRpmiNG/hHHkdbRFlLBOqxN8y8gf2Fb0MTUgVg==}

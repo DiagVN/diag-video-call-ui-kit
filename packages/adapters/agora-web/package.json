@@ -1,6 +1,6 @@
 {
   "name": "@diagvn/agora-web-adapter",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "type": "module",
   "description": "Agora Web SDK adapter for DIAG Video Call UI Kit",
   "repository": {
