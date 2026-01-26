@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.10] - 2026-01-26
+
+### Added
+- **Adapter methods** - Added missing methods to agora-web-v2 adapter:
+  - `setHandRaised(raised: boolean)` - Emit hand raise event for UI handling
+  - `startTranscript(language?: string)` - Start transcript/STT (emits event for external setup)
+  - `stopTranscript()` - Stop transcript session
+
+- **Event handling** - Added `hand-raised` event to core EventMap and store handler
+
+- **Feature flags** - Added new flags to FeatureFlags:
+  - `participantsList` - Control participants panel visibility
+  - `layoutToggle` - Control layout switching capability
+  - `fullscreen` - Control fullscreen mode availability
+
+### Changed
+- **BREAKING: FeatureFlags** - Renamed `raiseHand` to `handRaise` (old name deprecated but still works)
+- **BREAKING: TranscriptEntry** - Added `speakerName` as primary field, deprecated `participantName`
+- **TranscriptEntry** - Added `isLocal` boolean to identify local user entries
+
+### Fixed
+- **Type consistency** - Aligned FeatureFlags between core-v2 and UI components
+- **Participant interface** - Added `isHandRaised` property to both core and core-v2
+
+---
+
+## [2.0.9] - 2026-01-26
+
+### Fixed
+- **Style export** - Fixed missing `style.css` export in ui-kit-v2 package.json
+
+---
+
+## [2.0.8] - 2026-01-26
+
+### Added
+- **Comprehensive documentation** - Updated all v2 package READMEs with complete API references
+- **Root README update** - Added v2 quick start guide with separate views usage
+
+### Fixed
+- **STT_BACKEND_INTEGRATION.md** - Updated guide with v2 simple view examples
+
+---
+
 ## [2.0.7] - 2026-01-26
 
 ### Fixed
