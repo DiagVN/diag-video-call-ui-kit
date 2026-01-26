@@ -173,7 +173,6 @@ import type {
   VideoCallAdapter,
   CallState,
   LayoutMode,
-  DeviceInfo,
   VirtualBackgroundConfig,
   BeautyEffectsConfig,
   NoiseSuppressionLevel,
