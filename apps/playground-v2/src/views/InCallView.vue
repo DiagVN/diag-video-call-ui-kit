@@ -141,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
@@ -164,9 +164,13 @@ import type {
   VirtualBackgroundConfig,
   BeautyEffectsConfig,
 } from '@diagvn/video-call-core-v2';
+import { useSttApi } from '../composables/useSttApi';
 
 const router = useRouter();
 const { t } = useI18n();
+
+// STT API
+const sttApi = useSttApi();
 
 // Settings from prejoin
 interface CallSettings {
@@ -267,10 +271,27 @@ const onToggleRecording = async () => {
 };
 
 const onToggleTranscript = async (enabled: boolean) => {
-  if (enabled) {
-    await adapter.value?.startTranscription({ language: 'en-US' });
-  } else {
-    await adapter.value?.stopTranscription();
+  try {
+    if (enabled) {
+      // Start STT via Agora REST API
+      await sttApi.startStt({
+        channelName: settings.channelName,
+        uid: '999999', // Dedicated bot UID
+        language: 'vi-VN' // Default to Vietnamese, can be made configurable
+      });
+      // Also enable client-side transcript listening
+      await adapter.value?.startTranscription({ language: 'vi-VN' });
+      callState.transcript.enabled = true;
+    } else {
+      // Stop STT
+      await sttApi.stopStt();
+      await adapter.value?.stopTranscription();
+      callState.transcript.enabled = false;
+    }
+  } catch (error) {
+    console.error('[InCallView] Transcript toggle failed:', error);
+    // Show error toast
+    callState.transcript.enabled = false;
   }
 };
 
@@ -409,6 +430,10 @@ onMounted(() => {
 onUnmounted(() => {
   if (durationInterval) {
     clearInterval(durationInterval);
+  }
+  // Stop STT if running
+  if (sttApi.isRunning.value) {
+    sttApi.stopStt().catch(console.error);
   }
   adapter.value?.leave();
   adapter.value = null;

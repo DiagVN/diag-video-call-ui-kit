@@ -73,15 +73,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue';
+import { ref, computed, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { DiagVideoCallV2 } from '@diagvn/video-call-ui-kit-v2';
 import { createAgoraAdapter } from '@diagvn/agora-web-adapter-v2';
 import { useVideoCallStoreV2 } from '@diagvn/video-call-core-v2';
 import type { JoinOptions, FeatureFlags } from '@diagvn/video-call-core-v2';
+import { useSttApi } from '../composables/useSttApi';
 
 const router = useRouter();
 const store = useVideoCallStoreV2();
+const sttApi = useSttApi();
 
 // Form state
 const appId = ref(import.meta.env.VITE_AGORA_APP_ID || '');
@@ -94,6 +96,31 @@ const enableWaitingRoom = ref(false);
 
 // Call state
 const isConnected = ref(false);
+
+// Watch for transcript state changes to trigger STT API
+watch(
+  () => store.transcriptState?.enabled,
+  async (enabled, prevEnabled) => {
+    // Skip if same state or not connected
+    if (enabled === prevEnabled || !isConnected.value) return;
+
+    try {
+      if (enabled) {
+        // Start STT via Agora REST API
+        await sttApi.startStt({
+          channelName: channelName.value,
+          uid: '999999', // Dedicated bot UID
+          language: 'vi-VN'
+        });
+      } else {
+        // Stop STT
+        await sttApi.stopStt();
+      }
+    } catch (error) {
+      console.error('[SimpleCallView] STT toggle failed:', error);
+    }
+  }
+);
 
 const canStart = computed(() => {
   return appId.value && channelName.value && userName.value;
@@ -166,6 +193,10 @@ const goHome = () => {
 onUnmounted(() => {
   if (isConnected.value) {
     store.leave();
+  }
+  // Stop STT if running
+  if (sttApi.isRunning.value) {
+    sttApi.stopStt().catch(console.error);
   }
 });
 </script>
