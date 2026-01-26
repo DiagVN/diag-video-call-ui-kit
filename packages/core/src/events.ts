@@ -44,6 +44,8 @@ export interface EventMap {
   'screen-share-started': { uid: string }
   /** Screen share stopped */
   'screen-share-stopped': { uid: string }
+  /** Hand raised/lowered */
+  'hand-raised': { participantId: string; raised: boolean; timestamp: number }
   /** Transcript entry received */
   'transcript-entry': TranscriptEntry
   /** Transcript started */

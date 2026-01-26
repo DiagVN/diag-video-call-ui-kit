@@ -44,6 +44,8 @@ export interface Participant {
   avatarUrl?: string
   /** Is screen sharing */
   isScreenSharing?: boolean
+  /** Is hand raised */
+  isHandRaised?: boolean
   /** Join timestamp */
   joinedAt?: number
 }

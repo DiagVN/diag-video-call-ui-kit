@@ -556,6 +556,45 @@ export class AgoraAdapterV2 implements Actions {
   }
 
   // ============================================================================
+  // Hand Raise
+  // ============================================================================
+
+  async setHandRaised(raised: boolean): Promise<void> {
+    // Hand raise is a signaling feature - emit event for UI to handle
+    // The actual signaling should be handled via RTM or custom backend
+    this.eventBus.emit('hand-raised', {
+      participantId: this.localUserId || 'local',
+      raised,
+      timestamp: Date.now()
+    })
+  }
+
+  // ============================================================================
+  // Transcript / Speech-to-Text
+  // ============================================================================
+
+  async startTranscript(language?: string): Promise<boolean> {
+    // Transcript requires external STT service integration
+    // This emits the event for the application to handle STT setup
+    try {
+      this.eventBus.emit('transcript-started', {
+        language: language || 'en-US'
+      })
+      return true
+    } catch (error) {
+      this.eventBus.emit('error', {
+        code: 'TRANSCRIPT_START_FAILED',
+        message: (error as Error).message
+      })
+      return false
+    }
+  }
+
+  async stopTranscript(): Promise<void> {
+    this.eventBus.emit('transcript-stopped', undefined)
+  }
+
+  // ============================================================================
   // Recording
   // ============================================================================
 

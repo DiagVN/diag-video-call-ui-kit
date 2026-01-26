@@ -589,13 +589,24 @@ export interface ChatState {
  */
 export interface TranscriptEntry {
   id: string
+  /** Speaker's UID */
   participantId: string
-  participantName: string
+  /** @deprecated Use speakerName instead */
+  participantName?: string
+  /** Speaker's display name */
+  speakerName: string
+  /** Transcribed text */
   text: string
+  /** Is final result (vs interim) */
   isFinal: boolean
+  /** Unix timestamp */
   timestamp: number
+  /** Language code (e.g., 'vi-VN') */
   language?: string
+  /** Confidence score (0-1) */
   confidence?: number
+  /** Is from local user */
+  isLocal?: boolean
 }
 
 /**
@@ -833,12 +844,20 @@ export interface FeatureFlags {
   liveStream: boolean
   /** Chat */
   chat: boolean
-  /** Transcript */
+  /** Transcript / Speech-to-text */
   transcript: boolean
   /** Screen share */
   screenShare: boolean
   /** Raise hand */
-  raiseHand: boolean
+  handRaise: boolean
+  /** @deprecated Use handRaise instead */
+  raiseHand?: boolean
+  /** Participants list panel */
+  participantsList: boolean
+  /** Layout toggle (grid/speaker/etc) */
+  layoutToggle: boolean
+  /** Fullscreen mode */
+  fullscreen: boolean
   /** Breakout rooms */
   breakoutRooms: boolean
   /** Polls */
@@ -853,16 +872,19 @@ export interface FeatureFlags {
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
   audioToggle: true,
   videoToggle: true,
-  waitingRoom: true,
+  waitingRoom: false,
   virtualBackground: true,
   beautyEffects: true,
   noiseSuppression: true,
-  recording: true,
+  recording: false,
   liveStream: false,
   chat: true,
-  transcript: true,
+  transcript: false,
   screenShare: true,
-  raiseHand: true,
+  handRaise: true,
+  participantsList: true,
+  layoutToggle: true,
+  fullscreen: true,
   breakoutRooms: false,
   polls: false,
   whiteboard: false

@@ -186,6 +186,16 @@ export const useVideoCallStore = defineStore('videoCall', () => {
       }
     })
 
+    bus.on('hand-raised', ({ participantId, raised }) => {
+      const participant = participants.value.find(p => p.id === participantId)
+      if (participant) {
+        participant.isHandRaised = raised
+      }
+      if (localParticipant.value?.id === participantId) {
+        localParticipant.value.isHandRaised = raised
+      }
+    })
+
     // Transcript events
     bus.on('transcript-entry', entry => {
       // Update existing interim entry or add new one
