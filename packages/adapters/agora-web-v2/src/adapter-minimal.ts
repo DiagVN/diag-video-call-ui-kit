@@ -2187,97 +2187,76 @@ export class AgoraAdapterV2 implements Actions {
       this.eventBus.emit('participant-left', { id: String(user.uid), reason: 'quit' })
     })
 
-    // User published - with retry logic for race conditions
+    // User published - following React reference implementation
     this.rtcClient.on('user-published', async (user: IAgoraRTCRemoteUser, mediaType: 'audio' | 'video') => {
       this.log(' User published:', user.uid, mediaType)
       
-      // Store the user UID - we'll use this to get a fresh reference
-      const userId = user.uid
+      // Verify client is still connected
+      if (!this.rtcClient || this.rtcClient.connectionState !== 'CONNECTED') {
+        this.log(' Client not connected, skipping subscribe for:', user.uid)
+        return
+      }
       
-      // Retry subscribe with exponential backoff
-      const maxRetries = 5
-      let retryCount = 0
-      let subscribed = false
-      
-      while (!subscribed && retryCount < maxRetries) {
-        try {
-          // Verify client is still connected
-          if (!this.rtcClient || this.rtcClient.connectionState !== 'CONNECTED') {
-            this.log(' Client not connected, skipping subscribe for:', userId)
-            return
+      try {
+        // Subscribe immediately - following React reference
+        await this.rtcClient.subscribe(user, mediaType)
+        this.log(' Successfully subscribed to:', user.uid, mediaType)
+        
+        // Update our local tracking
+        this.remoteUsers.set(user.uid as number, user)
+        
+        // If the subscribed track is an audio track
+        if (mediaType === 'audio') {
+          const audioTrack = user.audioTrack
+          // Play the audio immediately
+          if (audioTrack) {
+            this.log(' Playing audio track for user:', user.uid)
+            audioTrack.play()
+          } else {
+            this.log(' WARNING: No audio track found after subscribe for:', user.uid)
           }
-          
-          // CRITICAL: Wait for SDK to synchronize its internal state
-          // The user-published event can fire before remoteUsers is updated
-          const delay = retryCount === 0 ? 300 : 500 * retryCount
-          await new Promise(resolve => setTimeout(resolve, delay))
-          
-          // Double-check client is still valid after the delay
-          if (!this.rtcClient || this.rtcClient.connectionState !== 'CONNECTED') {
-            this.log(' Client disconnected during delay, aborting:', userId)
-            return
-          }
-          
-          // IMPORTANT: Get a FRESH user reference from remoteUsers
-          // The user object from the callback can become stale
-          const freshUser = this.rtcClient.remoteUsers.find(u => u.uid === userId)
-          
-          if (!freshUser) {
-            // User not in remoteUsers yet - this is the race condition
-            this.log(' User not yet in remoteUsers, retry:', userId, 'attempt:', retryCount + 1)
-            retryCount++
-            continue
-          }
-          
-          this.log(' Found fresh user reference, attempting subscribe:', userId)
-          await this.rtcClient.subscribe(freshUser, mediaType)
-          subscribed = true
-          this.log(' Successfully subscribed to:', userId, mediaType)
-        } catch (error: unknown) {
-          const errorString = String(error)
-          
-          // Check if it's a "user not in channel" error
-          if (errorString.includes('not in the channel') || errorString.includes('USER_NOT_FOUND')) {
-            const stillTracked = this.remoteUsers.has(userId as number)
-            
-            if (stillTracked && retryCount < maxRetries - 1) {
-              this.log(' Subscribe failed but user still tracked, will retry:', userId)
-              retryCount++
-              continue
+          this.eventBus.emit('remote-audio-changed', { uid: String(user.uid), enabled: true })
+        } else if (mediaType === 'video') {
+          this.eventBus.emit('remote-video-changed', { uid: String(user.uid), enabled: true })
+        }
+        
+        // Emit participant updated
+        this.eventBus.emit('participant-updated', this.mapRemoteUserToParticipant(user.uid as number, user))
+      } catch (error: unknown) {
+        const errorString = String(error)
+        this.log(' Subscribe failed for:', user.uid, mediaType, errorString)
+        
+        // Retry with delay if user still exists
+        if (errorString.includes('not in the channel') || errorString.includes('USER_NOT_FOUND')) {
+          this.log(' Will retry subscribe after delay for:', user.uid)
+          setTimeout(async () => {
+            try {
+              if (!this.rtcClient || this.rtcClient.connectionState !== 'CONNECTED') return
+              
+              const freshUser = this.rtcClient.remoteUsers.find(u => u.uid === user.uid)
+              if (!freshUser) {
+                this.log(' User no longer available for retry:', user.uid)
+                return
+              }
+              
+              await this.rtcClient.subscribe(freshUser, mediaType)
+              this.log(' Retry subscribe successful for:', user.uid, mediaType)
+              
+              this.remoteUsers.set(freshUser.uid as number, freshUser)
+              
+              if (mediaType === 'audio' && freshUser.audioTrack) {
+                freshUser.audioTrack.play()
+                this.eventBus.emit('remote-audio-changed', { uid: String(freshUser.uid), enabled: true })
+              } else if (mediaType === 'video') {
+                this.eventBus.emit('remote-video-changed', { uid: String(freshUser.uid), enabled: true })
+              }
+              
+              this.eventBus.emit('participant-updated', this.mapRemoteUserToParticipant(freshUser.uid as number, freshUser))
+            } catch (retryError) {
+              this.log(' Retry subscribe failed for:', user.uid, retryError)
             }
-            
-            this.log(' User not in channel after retries, aborting subscribe:', userId)
-            return
-          }
-          
-          retryCount++
-          this.log('Subscribe attempt', retryCount, 'failed for', userId, ':', errorString)
-          
-          if (retryCount >= maxRetries) {
-            this.log(' Max retries reached for subscribing to:', userId, mediaType)
-            return
-          }
+          }, 500)
         }
-      }
-
-      // Update participant state after successful subscription
-      this.remoteUsers.set(userId as number, user)
-      
-      if (mediaType === 'audio') {
-        // Play audio track immediately after successful subscription
-        const freshUser = this.rtcClient?.remoteUsers.find(u => u.uid === userId)
-        if (freshUser?.audioTrack) {
-          freshUser.audioTrack.play()
-        }
-        this.eventBus.emit('remote-audio-changed', { uid: String(userId), enabled: true })
-      } else if (mediaType === 'video') {
-        this.eventBus.emit('remote-video-changed', { uid: String(userId), enabled: true })
-      }
-      
-      // Emit participant updated
-      const participant = this.remoteUsers.get(userId as number)
-      if (participant) {
-        this.eventBus.emit('participant-updated', this.mapRemoteUserToParticipant(userId as number, participant))
       }
     })
 

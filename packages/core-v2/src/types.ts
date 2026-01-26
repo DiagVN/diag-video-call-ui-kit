@@ -815,6 +815,10 @@ export interface WaitingRoomState {
  * Feature Flags - what's enabled/available
  */
 export interface FeatureFlags {
+  /** Allow toggling audio (mute/unmute) during call */
+  audioToggle: boolean
+  /** Allow toggling video (on/off) during call */
+  videoToggle: boolean
   /** Waiting room feature */
   waitingRoom: boolean
   /** Virtual background */
@@ -847,6 +851,8 @@ export interface FeatureFlags {
  * Default feature flags
  */
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
+  audioToggle: true,
+  videoToggle: true,
   waitingRoom: true,
   virtualBackground: true,
   beautyEffects: true,

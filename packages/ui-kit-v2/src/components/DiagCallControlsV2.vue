@@ -9,9 +9,9 @@
     <div class="vc-controls__section vc-controls__section--center">
       <!-- Audio toggle -->
       <button
+        v-if="features.audioToggle !== false"
         class="vc-controls__btn"
         :class="{ 'vc-controls__btn--muted': !isAudioEnabled }"
-        :disabled="!features.audio"
         :title="isAudioEnabled ? $t('vc.action.mute') : $t('vc.action.unmute')"
         @click="$emit('toggle-audio')"
       >
@@ -23,9 +23,9 @@
 
       <!-- Video toggle -->
       <button
+        v-if="features.videoToggle !== false"
         class="vc-controls__btn"
         :class="{ 'vc-controls__btn--muted': !isVideoEnabled }"
-        :disabled="!features.video"
         :title="isVideoEnabled ? $t('vc.action.stopVideo') : $t('vc.action.startVideo')"
         @click="$emit('toggle-video')"
       >
@@ -244,8 +244,8 @@ const props = withDefaults(defineProps<DiagCallControlsV2Props>(), {
   participantCount: 0,
   unreadMessages: 0,
   features: () => ({
-    audio: true,
-    video: true,
+    audioToggle: true,
+    videoToggle: true,
     screenShare: true,
     chat: true,
     participantsList: true,

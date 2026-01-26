@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-01-26
+
+### Fixed
+- **Audio subscription** - Fixed remote audio not playing by simplifying subscription logic to match Agora React reference implementation
+- **Audio/Video toggle buttons** - Removed disabled state, buttons are now always clickable when shown
+
+### Added
+- **New feature flags** for call controls:
+  - `audioToggle` - Control whether audio mute/unmute button is shown (default: true)
+  - `videoToggle` - Control whether video on/off button is shown (default: true)
+- Allows teleconsultation apps to hide audio/video controls when needed for medical compliance
+
+### Changed
+- Audio subscription now follows React reference - immediate subscription without delay
+- Control buttons use `v-if` to show/hide instead of `:disabled` state
+
+---
+
 ## [2.0.0] - 2026-01-23
 
 ### 🎉 Major Release: V2 Architecture
