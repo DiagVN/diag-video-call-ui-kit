@@ -5,11 +5,15 @@
 :root {
   /* Colors - Light Theme */
   --vc-bg: #f5f5f5;
+  --vc-bg-secondary: #e8e8e8;
+  --vc-bg-hover: #e0e0e0;
   --vc-surface: #ffffff;
   --vc-surface-elevated: #ffffff;
   --vc-fg: #1a1a1a;
   --vc-fg-muted: #666666;
   --vc-fg-subtle: #999999;
+  --vc-text: #1a1a1a;
+  --vc-text-secondary: #666666;
   --vc-border: #e0e0e0;
   --vc-border-strong: #cccccc;
 
@@ -117,11 +121,15 @@
 .vc-theme-dark,
 [data-theme="dark"] {
   --vc-bg: #0a0a0a;
+  --vc-bg-secondary: #2a2a2a;
+  --vc-bg-hover: #333333;
   --vc-surface: #1a1a1a;
   --vc-surface-elevated: #242424;
   --vc-fg: #ffffff;
   --vc-fg-muted: #a0a0a0;
   --vc-fg-subtle: #666666;
+  --vc-text: #ffffff;
+  --vc-text-secondary: #a0a0a0;
   --vc-border: #2a2a2a;
   --vc-border-strong: #404040;
   --vc-control-bar-bg: rgba(26, 26, 26, 0.95);

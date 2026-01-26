@@ -747,17 +747,22 @@ const handleApplyVirtualBackground = async () => {
 }
 
 .vc-settings-panel__close {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: transparent;
-  color: var(--vc-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--vc-border, #e0e0e0);
+  background: var(--vc-bg-secondary, #e8e8e8);
+  color: var(--vc-fg, #1a1a1a);
   cursor: pointer;
-  border-radius: var(--vc-radius-sm);
+  border-radius: var(--vc-radius-sm, 6px);
+  transition: all 0.2s ease;
 }
 
 .vc-settings-panel__close:hover {
-  background: var(--vc-bg-hover);
+  background: var(--vc-bg-hover, #e0e0e0);
+  border-color: var(--vc-border-strong, #cccccc);
 }
 
 /* Tabs */
@@ -929,7 +934,7 @@ const handleApplyVirtualBackground = async () => {
   height: 6px;
   -webkit-appearance: none;
   appearance: none;
-  background: var(--vc-bg-secondary);
+  background: var(--vc-border-strong, #404040);
   border-radius: 3px;
   cursor: pointer;
 }
@@ -937,11 +942,29 @@ const handleApplyVirtualBackground = async () => {
 .vc-settings-panel__slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  background: var(--vc-primary);
+  width: 18px;
+  height: 18px;
+  background: var(--vc-primary, #0066ff);
+  border: 2px solid var(--vc-surface, #ffffff);
   border-radius: 50%;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.vc-settings-panel__slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--vc-primary, #0066ff);
+  border: 2px solid var(--vc-surface, #ffffff);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.vc-settings-panel__slider::-moz-range-track {
+  height: 6px;
+  background: var(--vc-border-strong, #404040);
+  border-radius: 3px;
 }
 
 /* Backgrounds grid */
@@ -982,6 +1005,12 @@ const handleApplyVirtualBackground = async () => {
 
 .vc-settings-panel__bg-icon {
   font-size: 20px;
+  color: var(--vc-fg, #1a1a1a);
+}
+
+/* Ensure icon is visible in background options */
+.vc-settings-panel__bg-option :deep(.vc-icon) {
+  color: var(--vc-fg, #1a1a1a);
 }
 
 /* Error message */
