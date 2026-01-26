@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.11] - 2026-01-26
+
+### Added
+- **Language Selector** - Added `DiagLanguageSelectorV2` modal component for selecting STT language before starting transcription
+  - Shows available Agora-supported languages (33 languages)
+  - Integrated into `DiagVideoCallV2` to intercept transcript toggle
+  - i18n translations for English and Vietnamese
+
+### Fixed
+- **Dark Mode Settings Panel** - Fixed visibility issues in dark theme:
+  - Added missing CSS variables (`--vc-bg-secondary`, `--vc-bg-hover`, `--vc-text`, `--vc-text-secondary`)
+  - Fixed slider track visibility with better contrast colors
+  - Added Firefox slider support (`::-moz-range-thumb`, `::-moz-range-track`)
+  - Improved close button visibility with border and background
+  - Fixed blur icon visibility with proper color inheritance
+
+- **Language Dropdown** - Replaced custom dropdown with native `<select>` for better UX and accessibility
+
+- **Agora STT Languages** - Updated language list to official Agora Real-time STT supported languages (33 languages)
+
+---
+
 ## [2.0.10] - 2026-01-26
 
 ### Added
