@@ -562,6 +562,10 @@ export const useVideoCallStoreV2 = defineStore('videoCallV2', () => {
       transcriptState.value.enabled = false
     })
     
+    bus.on('transcript-language-changed', ({ language }) => {
+      transcriptState.value.language = language
+    })
+    
     // Stats
     bus.on('stats-updated', newStats => {
       stats.value = { ...stats.value, ...newStats }
@@ -953,6 +957,22 @@ export const useVideoCallStoreV2 = defineStore('videoCallV2', () => {
     }
   }
   
+  async function setTranscriptLanguage(language: string) {
+    if (!adapter.value?.setTranscriptLanguage) {
+      // If adapter doesn't support setTranscriptLanguage, restart with new language
+      if (transcriptState.value.enabled) {
+        await stopTranscript()
+        await startTranscript(language)
+      } else {
+        // Just update the state for next start
+        transcriptState.value.language = language
+        eventBus.value.emit('transcript-language-changed', { language })
+      }
+      return
+    }
+    await adapter.value.setTranscriptLanguage(language)
+  }
+  
   function clearTranscript() {
     transcriptState.value.entries = []
   }
@@ -1234,6 +1254,7 @@ export const useVideoCallStoreV2 = defineStore('videoCallV2', () => {
     startTranscript,
     stopTranscript,
     toggleTranscript,
+    setTranscriptLanguage,
     clearTranscript,
     
     // Actions - Layout

@@ -290,6 +290,12 @@ export interface DiagVideoCallV2Emits {
   (e: 'rejoin'): void
   (e: 'retry'): void
   (e: 'error', error: Error): void
+  /** Fired when transcript language is selected and transcript is starting */
+  (e: 'transcript-language-selected', language: string): void
+  /** Fired when transcript starts with the selected language */
+  (e: 'transcript-started', language: string): void
+  /** Fired when transcript stops */
+  (e: 'transcript-stopped'): void
 }
 
 const props = withDefaults(defineProps<DiagVideoCallV2Props>(), {
@@ -314,7 +320,13 @@ provide('videoCallStore', store)
 // Language selector state
 const showLanguageSelector = ref(false)
 const isStartingTranscript = ref(false)
-const selectedTranscriptLanguage = ref('en-US')
+// Sync selected language with store's transcript language
+const selectedTranscriptLanguage = computed({
+  get: () => store.transcriptState.language || 'en-US',
+  set: (value: string) => {
+    // The actual state is managed through store actions
+  }
+})
 
 // Computed
 const rootClasses = computed(() => ({
@@ -385,6 +397,7 @@ function handleToggleTranscript() {
   if (store.transcriptState.enabled) {
     // Transcript is active, just stop it
     store.stopTranscript()
+    emit('transcript-stopped')
   } else {
     // Transcript not active, show language selector first
     showLanguageSelector.value = true
@@ -393,12 +406,17 @@ function handleToggleTranscript() {
 
 // Handle language selection confirm
 async function handleLanguageConfirm(language: string) {
-  selectedTranscriptLanguage.value = language
   isStartingTranscript.value = true
+  
+  // Emit the language selection event BEFORE starting transcript
+  // This allows the client/backend to prepare the STT service with the correct language
+  emit('transcript-language-selected', language)
   
   try {
     await store.startTranscript(language)
     showLanguageSelector.value = false
+    // Emit transcript started event
+    emit('transcript-started', language)
   } catch (error) {
     console.error('[DiagVideoCallV2] Failed to start transcript:', error)
     store.addToast({
