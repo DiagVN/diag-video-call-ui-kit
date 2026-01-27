@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.13] - 2026-01-27
+
+### Fixed
+- **Virtual Background Mirror Issue** - Background images are now pre-flipped horizontally before being applied to Agora VB
+  - Users continue to see themselves mirrored (natural self-view experience)
+  - Background images now display in correct orientation (not reversed/flipped)
+  - Uses canvas-based image flipping to compensate for video mirror
+
+---
+
 ## [2.0.12] - 2026-01-27
 
 ### Added
