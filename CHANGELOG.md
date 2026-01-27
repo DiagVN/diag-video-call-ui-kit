@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.12] - 2026-01-27
+
+### Added
+- **STT Language Selection Events** - New events on `DiagVideoCallV2` for client control:
+  - `@transcript-language-selected` - Fired when user selects a language (BEFORE transcript starts)
+  - `@transcript-started` - Fired when transcript successfully starts with selected language
+  - `@transcript-stopped` - Fired when transcript is stopped
+- **Set Transcript Language** - New `setTranscriptLanguage(language)` method in store to change STT language during active session
+- **Language State Sync** - `selectedTranscriptLanguage` now syncs with store's transcript state
+
+### Changed
+- **Event Bus** - Added listener for `transcript-language-changed` event in store
+
+---
+
 ## [2.0.11] - 2026-01-26
 
 ### Added

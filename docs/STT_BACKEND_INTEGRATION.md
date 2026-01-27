@@ -26,9 +26,9 @@ The UI Kit provides the client-side implementation. You need to implement the ba
 
 ## Client-Side Usage (V2)
 
-### Quick Start - Simple View
+### Quick Start - Using DiagVideoCallV2 Events (Recommended)
 
-For the simplest integration using `DiagVideoCallV2`:
+The simplest integration uses the new STT events on `DiagVideoCallV2`:
 
 ```vue
 <script setup lang="ts">
@@ -44,11 +44,13 @@ const sttApi = {
   start: (channel: string, language: string) => 
     fetch('/api/stt/start', { 
       method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ channelName: channel, language }) 
     }),
   stop: (channel: string) => 
     fetch('/api/stt/stop', { 
       method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ channelName: channel }) 
     })
 }
@@ -61,33 +63,71 @@ onMounted(async () => {
   await store.init()
 })
 
-// Handle transcript toggle from UI
-async function handleToggleTranscript() {
+// Called when user selects a language (BEFORE transcript starts)
+// Use this to configure your backend STT service
+async function onLanguageSelected(language: string) {
+  console.log('User selected language:', language)
   const channel = store.channelName
-  if (!channel) return
+  if (channel) {
+    await sttApi.start(channel, language)
+  }
+}
 
-  if (store.transcriptState.enabled) {
+// Called when transcript successfully starts
+function onTranscriptStarted(language: string) {
+  console.log('Transcript started with language:', language)
+}
+
+// Called when transcript stops
+async function onTranscriptStopped() {
+  console.log('Transcript stopped')
+  const channel = store.channelName
+  if (channel) {
     await sttApi.stop(channel)
-    await store.stopTranscript()
-  } else {
-    await sttApi.start(channel, 'vi-VN')
-    await store.startTranscript('vi-VN')
   }
 }
 </script>
 
 <template>
   <DiagVideoCallV2
-    :channel="'my-room'"
-    :uid="12345"
-    :display-name="'John'"
     :show-transcript="true"
-    @toggle-transcript="handleToggleTranscript"
+    @transcript-language-selected="onLanguageSelected"
+    @transcript-started="onTranscriptStarted"
+    @transcript-stopped="onTranscriptStopped"
   />
 </template>
 ```
 
-### Compose View - Manual Control
+### Event Flow
+
+When the user clicks the transcript button:
+
+1. **Language Selector Modal** opens (first time)
+2. User selects a language and clicks "Start"
+3. `@transcript-language-selected` event fires with the selected language
+4. Your handler calls your backend to start Agora STT
+5. UI Kit calls `store.startTranscript(language)`
+6. `@transcript-started` event fires when ready
+7. Transcript entries start appearing
+
+When the user clicks the transcript button again (to stop):
+
+1. UI Kit calls `store.stopTranscript()`
+2. `@transcript-stopped` event fires
+3. Your handler calls your backend to stop Agora STT
+
+### Changing Language During Active Session
+
+```typescript
+// Change language while transcript is running
+await store.setTranscriptLanguage('zh-CN')
+
+// This will:
+// 1. Emit 'transcript-language-changed' event
+// 2. Restart transcript with the new language (if adapter doesn't support live language change)
+```
+
+### Legacy Method - Manual Control
 
 For custom views with individual components:
 
@@ -174,10 +214,11 @@ store.transcriptState.language  // string - current language (e.g., 'vi-VN')
 store.transcriptState.entries   // TranscriptEntry[] - transcript history
 
 // Actions
-await store.startTranscript('vi-VN')  // Start listening for transcript data
-await store.stopTranscript()           // Stop listening
-await store.toggleTranscript('vi-VN')  // Toggle on/off
-store.clearTranscript()                 // Clear transcript entries
+await store.startTranscript('vi-VN')       // Start listening for transcript data
+await store.stopTranscript()                // Stop listening
+await store.toggleTranscript('vi-VN')       // Toggle on/off
+await store.setTranscriptLanguage('zh-CN')  // Change language (restarts if active)
+store.clearTranscript()                      // Clear transcript entries
 ```
 
 ### Listening for Transcript Events

@@ -1,6 +1,6 @@
 {
   "name": "@diagvn/video-call-ui-kit-v2",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "description": "Video Call UI Kit v2 - Comprehensive Vue 3 components for video calling with full feature support",
   "type": "module",
   "main": "./dist/index.cjs",
