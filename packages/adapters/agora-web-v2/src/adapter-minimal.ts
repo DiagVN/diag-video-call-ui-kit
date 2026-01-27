@@ -201,6 +201,44 @@ const ENCRYPTION_MODE_MAP: Record<EncryptionMode, AgoraEncryptionMode | null> = 
   'aes-256-gcm2': 'aes-256-gcm2',
 }
 
+/**
+ * Helper function to flip an image horizontally using canvas.
+ * This is used to pre-flip virtual background images so that when
+ * the video is mirrored (for the local user), the background appears correctly.
+ * 
+ * @param img - Source image element
+ * @returns Promise resolving to a flipped HTMLImageElement
+ */
+async function flipImageHorizontally(img: HTMLImageElement): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    try {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.naturalWidth || img.width
+      canvas.height = img.naturalHeight || img.height
+      
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        reject(new Error('Could not get canvas context'))
+        return
+      }
+      
+      // Flip horizontally
+      ctx.translate(canvas.width, 0)
+      ctx.scale(-1, 1)
+      ctx.drawImage(img, 0, 0)
+      
+      // Convert back to image
+      const flippedImg = new Image()
+      flippedImg.crossOrigin = 'anonymous'
+      flippedImg.onload = () => resolve(flippedImg)
+      flippedImg.onerror = (e) => reject(e)
+      flippedImg.src = canvas.toDataURL('image/png')
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 // ============================================================================
 // Minimal Adapter Implementation
 // ============================================================================
@@ -1495,6 +1533,7 @@ export class AgoraAdapterV2 implements Actions {
             // Local participant video
             if (kind === 'camera' && self.localVideoTrack) {
               log(' Playing local video track to element')
+              // Always mirror local video - background images are pre-flipped to compensate
               safePlayTrack(self.localVideoTrack, element, { fit: 'cover', mirror: true })
             } else {
               log(' No track available for local participant')
@@ -1565,7 +1604,10 @@ export class AgoraAdapterV2 implements Actions {
       },
       
       attachPreview(element: HTMLElement, _kind: 'camera' | 'screen') {
-        console.log('[Renderer] attachPreview called - vbEnabled:', self.vbEnabled, 'hasLocalTrack:', !!self.localVideoTrack)
+        console.log('[Renderer] attachPreview called - vbEnabled:', self.vbEnabled, 'vbApplied:', self.vbApplied, 'hasLocalTrack:', !!self.localVideoTrack)
+        
+        // Always mirror local preview - background images are pre-flipped to compensate
+        const shouldMirror = true
         
         // For simple preview (no VB), just use the main track
         // This works for PreJoin and when VB is not active
@@ -1582,11 +1624,13 @@ export class AgoraAdapterV2 implements Actions {
               videoElement.style.width = '100%'
               videoElement.style.height = '100%'
               videoElement.style.objectFit = 'cover'
-              videoElement.style.transform = 'scaleX(-1)'
+              if (shouldMirror) {
+                videoElement.style.transform = 'scaleX(-1)'
+              }
               
               element.innerHTML = ''
               element.appendChild(videoElement)
-              console.log('[Renderer] ✓ Preview attached using native video element')
+              console.log('[Renderer] ✓ Preview attached using native video element, mirrored:', shouldMirror)
               return
             }
           } catch (e) {
@@ -1595,8 +1639,8 @@ export class AgoraAdapterV2 implements Actions {
           
           // Fallback to track.play()
           try {
-            self.localVideoTrack.play(element, { fit: 'cover', mirror: true })
-            console.log('[Renderer] ✓ Preview attached using track.play()')
+            self.localVideoTrack.play(element, { fit: 'cover', mirror: shouldMirror })
+            console.log('[Renderer] ✓ Preview attached using track.play(), mirrored:', shouldMirror)
           } catch (e) {
             console.error('[Renderer] Failed to play preview:', e)
           }
@@ -1645,9 +1689,10 @@ export class AgoraAdapterV2 implements Actions {
         }
         
         // Play the preview track
+        // Always mirror for preview - background images are pre-flipped to compensate
         try {
           self.previewVideoTrack.play(element, { fit: 'cover', mirror: true })
-          console.log('[Renderer] ✓ Preview track playing with VB')
+          console.log('[Renderer] ✓ Preview track playing with VB (mirrored)')
         } catch (e) {
           console.error('[Renderer] Failed to play preview track:', e)
         }
@@ -1799,10 +1844,16 @@ export class AgoraAdapterV2 implements Actions {
           img.onerror = (e) => reject(e)
         })
         
-        this.vbPreviewProcessor.setOptions({ type: 'img', source: img })
+        // Pre-flip the image horizontally so when the video is mirrored,
+        // the background appears in its original orientation
+        console.log('[VB] Flipping image horizontally for mirror compensation...')
+        const flippedImg = await flipImageHorizontally(img)
+        console.log('[VB] ✓ Image flipped')
+        
+        this.vbPreviewProcessor.setOptions({ type: 'img', source: flippedImg })
         await this.vbPreviewProcessor.enable()
         this.vbEnabled = true
-        console.log('[VB] ✓ Preview image background enabled')
+        console.log('[VB] ✓ Preview image background enabled (pre-flipped)')
       } else if (config.type === 'color' && config.color) {
         console.log('[VB] Setting preview color:', config.color)
         this.vbPreviewProcessor.setOptions({ type: 'color', color: config.color })
@@ -1874,7 +1925,13 @@ export class AgoraAdapterV2 implements Actions {
           img.onerror = (e) => reject(e)
         })
         
-        this.vbProcessor.setOptions({ type: 'img', source: img })
+        // Pre-flip the image horizontally so when the video is mirrored,
+        // the background appears in its original orientation
+        console.log('[VB] Flipping image horizontally for mirror compensation...')
+        const flippedImg = await flipImageHorizontally(img)
+        console.log('[VB] ✓ Image flipped')
+        
+        this.vbProcessor.setOptions({ type: 'img', source: flippedImg })
         await this.vbProcessor.enable()
       } else if (config.type === 'color' && config.color) {
         console.log('[VB] Applying color to main:', config.color)
