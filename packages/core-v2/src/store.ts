@@ -58,7 +58,11 @@ export const useVideoCallStoreV2 = defineStore('videoCallV2', () => {
   
   const callState = ref<CallState>('idle')
   const participants = ref<Participant[]>([])
-  const localParticipant = ref<LocalParticipant | null>(null)
+  // localParticipant is now a computed that finds the local participant from the array
+  // This ensures it always has the latest state (network quality, audio/video enabled, etc.)
+  const localParticipant = computed<LocalParticipant | null>(() => {
+    return (participants.value.find(p => p.isLocal) as LocalParticipant) || null
+  })
   const activeSpeakerId = ref<string | null>(null)
   
   // ===========================================================================
@@ -331,9 +335,11 @@ export const useVideoCallStoreV2 = defineStore('videoCallV2', () => {
       const existing = participants.value.findIndex(p => p.id === participant.id)
       if (existing === -1) {
         participants.value.push(participant)
+      } else {
+        // Update existing participant
+        participants.value[existing] = participant
       }
       if (participant.isLocal) {
-        localParticipant.value = participant as LocalParticipant
         isHost.value = participant.isHost
         isMuted.value = !participant.audioEnabled
         isVideoOff.value = !participant.videoEnabled
@@ -359,7 +365,6 @@ export const useVideoCallStoreV2 = defineStore('videoCallV2', () => {
         participants.value[index] = updated
       }
       if (updated.isLocal) {
-        localParticipant.value = updated as LocalParticipant
         isMuted.value = !updated.audioEnabled
         isVideoOff.value = !updated.videoEnabled
       }
@@ -386,15 +391,19 @@ export const useVideoCallStoreV2 = defineStore('videoCallV2', () => {
     // Media
     bus.on('local-audio-changed', ({ enabled }) => {
       isMuted.value = !enabled
-      if (localParticipant.value) {
-        localParticipant.value.audioEnabled = enabled
+      // Update the local participant in the participants array
+      const local = participants.value.find(p => p.isLocal)
+      if (local) {
+        local.audioEnabled = enabled
       }
     })
     
     bus.on('local-video-changed', ({ enabled }) => {
       isVideoOff.value = !enabled
-      if (localParticipant.value) {
-        localParticipant.value.videoEnabled = enabled
+      // Update the local participant in the participants array
+      const local = participants.value.find(p => p.isLocal)
+      if (local) {
+        local.videoEnabled = enabled
       }
     })
     
@@ -679,8 +688,7 @@ export const useVideoCallStoreV2 = defineStore('videoCallV2', () => {
   
   function resetState() {
     callState.value = 'ended'
-    participants.value = []
-    localParticipant.value = null
+    participants.value = []  // This will automatically clear localParticipant (computed)
     activeSpeakerId.value = null
     isScreenSharing.value = false
     pinnedParticipantId.value = null
