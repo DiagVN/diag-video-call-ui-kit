@@ -117,7 +117,7 @@
             <!-- Participants Panel -->
             <DiagParticipantsPanelV2
               v-if="store.isParticipantsOpen"
-              :participants="store.participants"
+              :participants="visibleParticipants"
               :local-participant="localParticipant"
               :waiting-room-attendees="store.waitingRoomState.attendees"
               :is-host="store.isHost"
@@ -194,9 +194,9 @@
             <DiagTranscriptPanelV2
               v-if="store.transcriptState.enabled && props.showTranscript"
               :entries="store.transcriptState.entries"
-              :is-open="store.isTranscriptOpen"
-              @toggle="store.isTranscriptOpen = !store.isTranscriptOpen"
-              @clear="store.clearTranscript"
+              :is-active="store.transcriptState.enabled"
+              @close="store.stopTranscript"
+              @stop="store.stopTranscript"
             />
           </slot>
         </template>
@@ -341,11 +341,19 @@ const localNetworkQuality = computed(() =>
   localParticipant.value?.networkQuality ?? 0
 )
 
+// Filter out STT bots and recording bots from participants list
+const visibleParticipants = computed(() => 
+  store.participants.filter(p => !p.isSTTBot && !p.isRecordingBot)
+)
+
 const gridParticipants = computed(() => {
+  // Filter out STT bots and recording bots from the grid
+  let filtered = visibleParticipants.value
+  
   if (store.layoutConfig.hideVideoOff) {
-    return store.participants.filter(p => p.videoEnabled || p.isLocal)
+    filtered = filtered.filter(p => p.videoEnabled || p.isLocal)
   }
-  return store.participants
+  return filtered
 })
 
 const showSidebar = computed(() =>

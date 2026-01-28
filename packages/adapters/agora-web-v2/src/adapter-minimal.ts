@@ -305,6 +305,7 @@ export class AgoraAdapterV2 implements Actions {
   private transcriptEnabled: boolean = false
   private transcriptLanguage: string = 'en-US'
   private streamMessageListenerBound: boolean = false
+  private sttBotUids: Set<number> = new Set() // Track UIDs that send STT messages
 
   // Getters for device IDs (aliases for compatibility)
   private get selectedMicrophoneId(): string { return this.currentMicId }
@@ -2227,6 +2228,20 @@ export class AgoraAdapterV2 implements Actions {
 
     // Listen for stream messages (Agora STT sends data via stream-message event)
     this.rtcClient.on('stream-message', (uid: UID, payload: Uint8Array) => {
+      // Mark this UID as an STT bot since it's sending stream messages
+      const numericUid = uid as number
+      if (!this.sttBotUids.has(numericUid)) {
+        this.sttBotUids.add(numericUid)
+        this.log('Detected STT bot UID:', numericUid)
+        
+        // Update the participant as STT bot
+        const user = this.remoteUsers.get(numericUid)
+        if (user) {
+          const participant = this.mapRemoteUserToParticipant(numericUid, user)
+          this.eventBus.emit('participant-updated', participant)
+        }
+      }
+      
       if (!this.transcriptEnabled) {
         return
       }
@@ -2289,9 +2304,23 @@ export class AgoraAdapterV2 implements Actions {
     words?: Array<{ text: string; isFinal?: boolean; confidence?: number }>;
     isFinal?: boolean;
     language?: string;
+    speakerId?: number | string;  // Agora STT includes the actual speaker's UID
   }): void {
-    const participant = this.remoteUsers.get(uid as number)
-    const participantName = participant ? String(uid) : 'Unknown'
+    // Agora STT typically sends the speakerId of who is speaking
+    // The uid parameter is the bot's UID, speakerId is the actual speaker
+    const speakerId = data.speakerId ? String(data.speakerId) : String(uid)
+    const isLocal = speakerId === String(this.localUid)
+    
+    // Get the speaker's display name
+    let speakerName = 'Unknown'
+    if (isLocal) {
+      speakerName = this.localUserName || `User-${this.localUid}`
+    } else {
+      const numericId = parseInt(speakerId, 10)
+      if (!isNaN(numericId) && this.remoteUsers.has(numericId)) {
+        speakerName = `User-${speakerId}`
+      }
+    }
     
     // Handle word-based format (Agora STT)
     if (data.words && Array.isArray(data.words)) {
@@ -2311,40 +2340,43 @@ export class AgoraAdapterV2 implements Actions {
       // Emit final text if available
       if (finalText) {
         this.eventBus.emit('transcript-entry', {
-          id: `${uid}-${Date.now()}-final`,
-          participantId: String(uid),
-          participantName,
+          id: `${speakerId}-${Date.now()}-final`,
+          participantId: speakerId,
+          speakerName,
           text: finalText.trim(),
           isFinal: true,
           timestamp: Date.now(),
           language: data.language || this.transcriptLanguage,
-          confidence: maxConfidence
+          confidence: maxConfidence,
+          isLocal
         })
       }
       
       // Emit interim text if available
       if (interimText) {
         this.eventBus.emit('transcript-entry', {
-          id: `${uid}-interim`,
-          participantId: String(uid),
-          participantName,
+          id: `${speakerId}-interim`,
+          participantId: speakerId,
+          speakerName,
           text: interimText.trim(),
           isFinal: false,
           timestamp: Date.now(),
-          language: data.language || this.transcriptLanguage
+          language: data.language || this.transcriptLanguage,
+          isLocal
         })
       }
     }
     // Handle simple text format
     else if (data.text) {
       this.eventBus.emit('transcript-entry', {
-        id: `${uid}-${Date.now()}`,
-        participantId: String(uid),
-        participantName,
+        id: `${speakerId}-${Date.now()}`,
+        participantId: speakerId,
+        speakerName,
         text: data.text,
         isFinal: data.isFinal !== false,
         timestamp: Date.now(),
-        language: data.language || this.transcriptLanguage
+        language: data.language || this.transcriptLanguage,
+        isLocal
       })
     }
   }
@@ -2435,9 +2467,14 @@ export class AgoraAdapterV2 implements Actions {
   }
 
   private mapRemoteUserToParticipant(uid: number, user: IAgoraRTCRemoteUser): Participant {
+    // Check if this is an STT bot:
+    // 1. Known STT bot UID (from stream-message sender)
+    // 2. No video and no audio (bots typically don't publish media)
+    const isSTTBot = this.sttBotUids.has(uid) || (!user.hasVideo && !user.hasAudio)
+    
     return {
       id: String(uid),
-      displayName: `User-${uid}`,
+      displayName: isSTTBot ? `STT-Bot-${uid}` : `User-${uid}`,
       role: 'speaker' as ParticipantRole,
       isLocal: false,
       isHost: false,
@@ -2454,6 +2491,7 @@ export class AgoraAdapterV2 implements Actions {
       hasVirtualBackground: false, // Remote user VB state not known
       hasBeautyEffect: false,
       hasNoiseSuppression: false,
+      isSTTBot,
     }
   }
 

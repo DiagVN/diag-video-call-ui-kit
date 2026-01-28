@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.15] - 2026-01-28
+
+### Fixed
+- **STT Bot Hidden from Participants** - STT bots are now automatically filtered out from the video grid and participants panel
+  - Added `isSTTBot` flag to `Participant` type in core-v2
+  - Adapter detects STT bots when they send stream messages and marks them accordingly
+  - Also filters users with no audio/video as potential bots
+  - `gridParticipants` and `visibleParticipants` computed properties filter out both STT bots and recording bots
+
+- **Transcript Panel Display** - Fixed transcript text not being visible
+  - Changed `isOpen` prop to `isActive` to match DiagTranscriptPanelV2 component interface
+  - Panel now correctly shows transcript entries when transcription is enabled
+
+- **Transcript Entry Speaker Info** - Improved speaker identification in transcript entries
+  - Entries now correctly identify local vs remote speakers with `isLocal` flag
+  - Uses `speakerName` field properly for display
+  - Supports Agora STT `speakerId` field to identify the actual speaker (separate from bot UID)
+
+---
+
 ## [2.0.14] - 2026-01-28
 
 ### Fixed

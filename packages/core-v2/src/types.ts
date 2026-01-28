@@ -112,6 +112,8 @@ export interface Participant {
   hasNoiseSuppression: boolean
   /** Is a recording bot */
   isRecordingBot?: boolean
+  /** Is a STT (Speech-to-Text) bot */
+  isSTTBot?: boolean
   /** Connection state */
   connectionState?: 'connected' | 'connecting' | 'reconnecting' | 'disconnected'
   /** Custom user data */
