@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.14] - 2026-01-28
+
+### Fixed
+- **Participant State Reactivity** - Fixed mic/video icons and network quality signal not updating correctly
+  - Changed `localParticipant` from `ref` to `computed` that finds the local participant from the participants array
+  - This ensures `localParticipant` always reflects the latest state updates (network quality, audio/video enabled)
+  - UI components now properly react to state changes
+
+---
+
 ## [2.0.13] - 2026-01-27
 
 ### Fixed
